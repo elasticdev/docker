@@ -1,0 +1,12 @@
+desc: The stack that does ci with docker
+release: 0.0.1
+categories: 
+   - ci
+   - continuous_delivery
+   - dev
+tags:
+   - ci
+   - continuous_delivery
+   - dev
+   - ed_saas
+   - ed
