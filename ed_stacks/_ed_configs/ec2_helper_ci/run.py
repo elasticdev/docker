@@ -163,7 +163,7 @@ def run(instructargs):
         optional_keys.append("ssh_port")
         optional_keys.append("http_port")
 
-        instruction_name = "gary:::public::Core/Docker/JiffyHost/Guest/GetLock/create"
+        instruction_name = "elasticdev:::ed_core::getlock_host"
         inputargs = {"name":instruction_name,
                      "overide_values":overide_values,
                      "optional_key":optional_keys,
@@ -181,7 +181,7 @@ def run(instructargs):
         overide_values = {}
         overide_values["hostname"] = docker_guest
         overide_values["add_env_var"] = True
-        instruction_name = "gary:::public::Core/Docker/publish_info"
+        instruction_name = "elasticdev:::ed_core::publish_info"
         inputargs = {"name":instruction_name,
                      "overide_values":overide_values}
         inputargs["automation_phase"] = "continuous_delivery"
