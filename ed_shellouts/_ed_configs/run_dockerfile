@@ -1,0 +1,107 @@
+#!/usr/bin/env python
+
+import os
+import string
+import random
+import sys
+import subprocess
+
+def id_generator(size=8,chars=string.ascii_uppercase+string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
+
+def run_cmd(cmd,exit_error=False):
+
+    print 'executing cmd "{}"'.format(cmd)
+
+    p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+
+    while True:
+        out = p.stderr.read(1)
+        if out == '' and p.poll() is not None:
+            break
+        if out != '':
+            sys.stdout.write(out)
+            sys.stdout.flush()
+
+    exitcode = p.returncode
+
+    if exitcode == 0: return True
+
+    print 'FAILED: executing cmd "{}" failed'.format(cmd)
+    print "exitcode {}".format(exitcode)
+    if exit_error: exit(exitcode)
+    return False
+
+class DockerVarSet(object):
+
+    def __init__(self):
+
+        self.docker_build_dir = os.environ.get("DOCKER_BUILD_DIR","/var/tmp/docker/build")
+
+        self.docker_file = os.environ.get("DOCKER_FILE","Dockerfile")
+        self.docker_file_dir = os.environ.get("DOCKER_FILE_DIR")
+        self.docker_file_folder = os.environ.get("DOCKER_FILE_FOLDER")
+        self.docker_env_file = os.environ.get("DOCKER_ENV_FILE")
+
+    def copy_docker_env(self):
+
+        if not self.docker_env_file: return
+
+        if not os.path.exists(self.docker_env_file): 
+            print "WARNING: $DOCKER_ENV_FILE {} not found.".format(self.docker_env_file)
+            return
+
+        if self.docker_env_file == os.path.join(self.docker_build_dir,".env"): return
+        
+        cmd = "cp -rp {} {}/.env".format(self.docker_env_file,self.docker_build_dir)
+        run_cmd(cmd,exit_error=True)
+
+    def set_dockfile_dir(self):
+
+        if not self.docker_file_dir: self.docker_file_dir = self.docker_build_dir
+        if not self.docker_file_folder: return
+
+        self.docker_file_dir = os.path.join(self.docker_file_dir,self.docker_file_folder)
+        os.environ["DOCKER_FILE_DIR"] = self.docker_file_dir
+
+        print "The Dockerfile directory is located: {}".format(self.docker_file_idr)
+
+    def run(self):
+
+        tag = os.environ.get("DOCKER_CMD_SCRIPT")
+        if not tag: tag = id_generator()
+
+        self.set_dockfile_dir()
+        self.copy_docker_env()
+
+        self.docker_file = "{}/{}".format(self.docker_file_dir,self.docker_file)
+            
+        if not os.path.exists(self.docker_file): 
+            msg = "ERROR: Cannot find Dockerfile expected here: \n\t{}".format(self.docker_file)
+            raise Exception(msg)
+            #exit(5)
+
+        docker_file_dir = os.path.dirname(self.docker_file)
+        docker_file_name = os.path.basename(self.docker_file)
+
+        cmds = []
+        if docker_file_dir != self.docker_build_dir:
+            for _file in os.listdir(docker_file_dir):
+                _path = os.path.join(self.docker_build_dir,_file)
+                if not os.path.exists(os.path.join(_path)): continue
+                cmds.append("rm -rf {}".format(_path))
+
+            cmds.append("cp -rT {} {}".format(docker_file_dir,self.docker_build_dir))
+
+        cmds.append("cd {}; docker build -t {} . -f {}".format(self.docker_build_dir,tag,docker_file_name))
+
+        for cmd in cmds:
+            status = run_cmd(cmd,exit_error=None)
+            if not status:
+                msg = "ERROR: cmd = {} failed!".format(cmd)
+                raise Exception(msg)
+                #exit(exitcode)
+
+if __name__ == '__main__':
+    dockervarset = DockerVarSet()
+    dockervarset.run()

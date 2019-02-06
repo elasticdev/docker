@@ -27,9 +27,9 @@ def run(instructargs):
     run_only = instructargs.get("run_only")
 
     if not run_only: 
-        build_groups = "gary:::public::Docker/Core/Deploy/DirectPull/DockerCreateContainer gary:::public::Deployment/Helpers/Image/Docker/PushContainer"
+        build_groups = "elasticdev:::docker::create_docker elasticdev:::docker::push_container"
     else:
-        build_groups = "gary:::public::Docker/Core/DirectPull/DockerRunCmdScript"
+        build_groups = "elasticdev:::docker::run_cmd"
 
     commit_hash = instructargs["commit_hash"]
     repo_url = instructargs["repo_url"]
@@ -50,7 +50,7 @@ def run(instructargs):
     config_env = instructargs.get("config_env","private")
     DOCKER_FILE_DIR = instructargs.get("DOCKER_FILE_DIR","/opt")
 
-    cleanup_groups = 'gary:::public::Build/Helpers/Docker/CleanUpDockerBuild'
+    cleanup_groups = 'elasticdev:::docker::cleanup_build'
     repo_key_group = instructargs["repo_key_group"]
     CustomConfigGroups = instructargs["CustomConfigGroups"]
     repo_key_loc = instructargs["repo_key_loc"]
@@ -69,7 +69,7 @@ def run(instructargs):
     DOCKER_ENV_CRED = instructargs.get("DOCKER_ENV_CRED")
 
     # The base environment variables used to build the docker container
-    base_env = instructargs.get("base_env","gary:::public::docker/build")
+    base_env = instructargs.get("base_env","elasticdev:::docker::build")
 
     # if you provide the DOCKER_BUILD_NAME, we either set it to None or some other value. 
     # if not provided, then we set it to tag
@@ -237,7 +237,7 @@ def run(instructargs):
     if commit_info:
         default_values = {}
         default_values["commit_info"] = commit_info
-        instruction_name = "gary:::public::Core/Pipeline/commit_info"
+        instruction_name = "elasticdev:::ed_core::run_commit_info"
         inputargs = {"name":instruction_name,
                      "default_values":default_values}
         inputargs["automation_phase"] = "continuous_delivery"
