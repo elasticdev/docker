@@ -1,0 +1,11 @@
+desc: Creates ed_host template on dockerhost
+release: 1.0.1
+categories: 
+   - dockerhost
+   - ed_host
+tags:
+   - ed
+   - docker
+   - dockerhost
+   - ed_host
+   - init
