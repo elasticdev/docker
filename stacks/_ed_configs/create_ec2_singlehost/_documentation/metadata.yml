@@ -1,11 +1,9 @@
-desc: Creates ed_host template on dockerhost
+desc: Creates a single docker host on ec2
 release: 1.0.1
 categories: 
    - dockerhost
-   - ed_host
 tags:
    - ed
    - docker
    - dockerhost
-   - ed_host
    - init
