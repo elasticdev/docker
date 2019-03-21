@@ -48,7 +48,7 @@ class Main(newSchedStack):
 
     def set_chk_registerdocker_attr(self):
 
-        #Docker Image Name and Repo
+        # Docker Image Name and Repo
         self.DOCKER_REPO = "{}/{}/{}".format(self.DOCKER_REGISTRY,self.DOCKER_USERNAME,self.DOCKER_REPO_NAME)
         self.image_tag = self.stack.get_random_string()
         self.DOCKER_IMAGE = "{}:{}".format(self.DOCKER_REPO,self.image_tag)
