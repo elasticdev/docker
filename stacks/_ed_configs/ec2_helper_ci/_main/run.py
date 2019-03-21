@@ -64,10 +64,7 @@ def run(stackargs):
     stack.init_substacks()
     stack.init_hostgroups()
 
-    #####################################
     # Begin ordering
-    #####################################
-
     if not stack.run_only: 
         build_groups = stack.build_groups
     else:
@@ -136,6 +133,7 @@ def run(stackargs):
     # If not run_only, we are registering the image
     pipeline_env_var = {}
 
+    # Add pipeline metadata
     if not stack.run_only:
         DOCKER_REPO,DOCKER_IMAGE,DOCKER_IMAGE_NAME = _get_register_variables(stack.tag,stackargs)
         default_values["tag"] = stack.tag
@@ -144,12 +142,10 @@ def run(stackargs):
         pipeline_env_var["DOCKER_IMAGE_NAME"] = DOCKER_IMAGE_NAME
         pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
         pipeline_env_var["image_tag"] = stack.tag
-        stack.add_pipeline_metadata(pipeline_env_var,publish=True)
-        ######################################################
-        stack.add_pipeline_metadata({"docker":{"name":stack.tag}})
-        ######################################################
+        stack.add_metadata_to_run(pipeline_env_var,publish=True)
+        stack.add_metadata_to_run({"docker":{"name":stack.tag}})
         stackargs["DOCKER_REPO"] = DOCKER_REPO
-        stack.add_pipeline_metadata({"DOCKER_IMAGE":DOCKER_IMAGE},mkey="deploy",env_var=True)
+        stack.add_metadata_to_run({"DOCKER_IMAGE":DOCKER_IMAGE},mkey="deploy",env_var=True)
 
     # Add additional views for pipeline env var
     # that isn't published
@@ -159,7 +155,7 @@ def run(stackargs):
     keys2pass.append("DOCKER_BUILD_NAME")
     stack.add_dict2dict(keys2pass,pipeline_env_var,stackargs)
     pipeline_env_var["DOCKER_FILE_DIR"] = stack.DOCKER_FILE_DIR
-    stack.add_pipeline_metadata(pipeline_env_var,env_var=True)
+    stack.add_metadata_to_run(pipeline_env_var,env_var=True)
 
     # check to see if a docker_guest exists
     docker_guest_info = stack.check_resource(name=docker_guest,
@@ -257,7 +253,7 @@ def run(stackargs):
     existing_keys.append("init")
     stack.insert_existing_attr(existing_keys,inputargs=pipeline_env_var)
     #if hasattr(stack,"repo_key_loc") and stack.repo_key_loc: pipeline_env_var["REPO_KEY_LOC"] = stack.repo_key_loc
-    stack.add_pipeline_metadata(pipeline_env_var,env_var_run=True)
+    stack.add_metadata_to_run(pipeline_env_var,env_var_run=True)
 
     ######################################################
     default_values = {}
