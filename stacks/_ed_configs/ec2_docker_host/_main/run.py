@@ -4,7 +4,7 @@ def run(stackargs):
     stack = newStack(stackargs)
 
     stack.parse.add_required(key="os_version",default="16.04")
-    stack.parse.add_required(key="hostname")
+    stack.parse.add_required(key="hostname",default="{}-{}".format(stack.cluster,"docker_host"))
     stack.parse.add_required(key="key",default="first_ssh_key")
     stack.parse.add_required(key="sg_label",default="null")
     stack.parse.add_required(key="sg_web_label",default="null")
