@@ -329,12 +329,12 @@ def run(stackargs):
         human_description = "Registers docker image"
         long_description = "Records the docker image with repo_url = {}, branch = {}, commit_hash = {} to Jiffy DB".format(stack.repo_url,repo_branch,stack.commit_hash)
 
-        stack.add_builtin_cmd(pargs=pargs,
-                              order_type=order_type,
-                              human_description=human_description,
-                              long_description=long_description,
-                              display=None,
-                              role=role,
-                              default_values=default_values)
+        stack.insert_builtin_cmd(pargs=pargs,
+                                 order_type=order_type,
+                                 human_description=human_description,
+                                 long_description=long_description,
+                                 display=None,
+                                 role=role,
+                                 default_values=default_values)
 
     return stack.get_results(stackargs.get("destroy_instance"))
