@@ -43,21 +43,18 @@ def run(stackargs):
     default_values["tags"] = "docker_host docker container single_host {} {} {}".format(stack.hostname,stack.os_version,"dev")
     if stack.sg: default_values["sg"] = stack.sg
     if stack.sg_label: default_values["sg_label"] = stack.sg_label
-
-    human_description = "Initiates a Docker Server on Ec2"
     
     inputargs = {"default_values":default_values,
                  "optional_keys":optional_keys}
     
     inputargs["automation_phase"] = "initialize_infrastructure"
-    inputargs["human_description"] = human_description
+    inputargs["human_description"] ="Initiates a Docker Server on Ec2"
     inputargs["display"] = True
     inputargs["display_hash"] = stack.get_hash_object(inputargs)
 
     stack.ec2_ubuntu.insert(**inputargs)
 
-    stack.wait_hosts_tag(tags=stack.hostname)
-
+    #stack.wait_hosts_tag(tags=stack.hostname)
     # publish hostname
     #stack.add_metadata_to_run({"docker_host":stack.hostname},mkey="infrastructure",publish=True)
 
