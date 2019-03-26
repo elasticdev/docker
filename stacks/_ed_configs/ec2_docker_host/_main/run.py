@@ -7,10 +7,11 @@ def run(stackargs):
     stack.parse.add_required(key="os_version",default="16.04")
     stack.parse.add_required(key="hostname",default="null")
     stack.parse.add_required(key="key",default="first_ssh_key")
-    stack.parse.add_required(key="sg_label",default="null")
-    stack.parse.add_required(key="sg_web_label",default="null")
-    stack.parse.add_required(key="sg",default="null")
-    stack.parse.add_required(key="sg_web",default="null")
+
+    stack.parse.add_optional(key="sg_label",default="null")
+    stack.parse.add_optional(key="sg_web_label",default="null")
+    stack.parse.add_optional(key="sg",default="null")
+    stack.parse.add_optional(key="sg_web",default="null")
 
     # Add substacks
     stack.add_substack('elasticdev:::ed_core::getlock_host')
