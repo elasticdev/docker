@@ -5,7 +5,7 @@ def run(stackargs):
 
     # add variables
     stack.parse.add_required(key="os_version",default="16.04")
-    stack.parse.add_required(key="hostname",default="{}-{}".format(stack.cluster,"docker_host"))
+    stack.parse.add_required(key="hostname",default="null")
     stack.parse.add_required(key="key",default="first_ssh_key")
     stack.parse.add_required(key="sg_label",default="null")
     stack.parse.add_required(key="sg_web_label",default="null")
@@ -25,6 +25,9 @@ def run(stackargs):
 
     if not stack.sg and stack.sg_web: 
         stack.set_variable("sg",stack.sg_web)
+
+    if not stack.hostname:
+        stack.set_variable("hostname","{}-{}".format(stack.cluster,"docker_host"))
 
     # create ubuntu docker host
     optional_keys = ["queue_name",
