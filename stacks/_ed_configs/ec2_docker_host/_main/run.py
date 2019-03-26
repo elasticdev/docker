@@ -3,6 +3,7 @@ def run(stackargs):
     # instantiate stack
     stack = newStack(stackargs)
 
+    # add variables
     stack.parse.add_required(key="os_version",default="16.04")
     stack.parse.add_required(key="hostname",default="{}-{}".format(stack.cluster,"docker_host"))
     stack.parse.add_required(key="key",default="first_ssh_key")
