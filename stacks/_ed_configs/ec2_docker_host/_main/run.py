@@ -53,6 +53,7 @@ def run(stackargs):
     inputargs["display"] = True
     inputargs["display_hash"] = stack.get_hash_object(inputargs)
 
+    # add the stack with variables
     stack.ec2_ubuntu.insert(**inputargs)
 
     #stack.wait_hosts_tag(tags=stack.hostname)
