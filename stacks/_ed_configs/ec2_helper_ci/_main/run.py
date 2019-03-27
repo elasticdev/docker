@@ -61,7 +61,8 @@ def run(stackargs):
     # init the stack namespace
     stack.init_variables()
     stack.init_substacks()
-    stack.init_hostgroups()
+    # Testing
+    #stack.init_hostgroups()
 
     # Begin ordering
     if not stack.run_only: 
