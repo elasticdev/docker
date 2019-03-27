@@ -33,11 +33,10 @@ def run(stackargs):
     stack.parse.add_required(key="repo_key_loc")
     stack.parse.add_required(key="docker_host")
 
-    stack.parse.add_required(key="config_env",default="private")
-    stack.parse.add_required(key="DOCKER_FILE_DIR",default="/opt")
-    stack.parse.add_required(key="tag",default=stack.get_random_string())
-    stack.parse.add_required(key="track",default=True)
-
+    stack.parse.add_optional(key="config_env",default="private")
+    stack.parse.add_optional(key="DOCKER_FILE_DIR",default="/opt")
+    stack.parse.add_optional(key="tag",default=stack.get_random_string())
+    stack.parse.add_optional(key="track",default=True)
     stack.parse.add_optional(key="DOCKER_ENV_FILE",default=None)
     stack.parse.add_optional(key="append_groups")
     stack.parse.add_optional(key="sched_name")
