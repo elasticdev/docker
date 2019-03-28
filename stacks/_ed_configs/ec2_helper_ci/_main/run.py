@@ -48,7 +48,7 @@ def run(stackargs):
     stack.parse.add_optional(key="DOCKER_ENV_CRED")
 
     # Add hostgroups
-    stack.add_hostgroups("elasticdev:::docker::create_docker elasticdev:::docker::push_container","build_groups")
+    stack.add_hostgroups("elasticdev:::docker::create_container elasticdev:::docker::push_container","build_groups")
     stack.add_hostgroups("elasticdev:::docker::run_cmd","build_groups_run_only")
     stack.add_hostgroups('elasticdev:::docker::cleanup_build','cleanup_build')
 
