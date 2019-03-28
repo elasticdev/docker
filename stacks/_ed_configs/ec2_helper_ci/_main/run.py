@@ -50,7 +50,7 @@ def run(stackargs):
     # Add hostgroups
     stack.add_hostgroups("elasticdev:::docker::create_docker elasticdev:::docker::push_container","build_groups")
     stack.add_hostgroups("elasticdev:::docker::run_cmd","build_groups_run_only")
-    stack.add_hostgroups('elasticdev:::docker::cleanup_build')
+    stack.add_hostgroups('elasticdev:::docker::cleanup_build','cleanup_build')
 
     # Add substacks
     stack.add_substack('elasticdev:::ed_core::getlock_host')
