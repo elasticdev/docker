@@ -4,19 +4,13 @@ class Main(newSchedStack):
 
         newSchedStack.__init__(self,stackargs)
 
-        #Required
-        required_keys = [ "DOCKER_USERNAME",
-                          "DOCKER_REPO_TYPE",
-                          "DOCKER_REPO_NAME",
-                          "DOCKER_ENV_CRED",
-                          "git_url",
-                          "repo_key_group",
-                          "repo_key_loc"
-                          ]
-
-        for required_key in required_keys: 
-            self.parse.add_required(key=required_key)
-
+        self.parse.add_required(key="DOCKER_USERNAME")
+        self.parse.add_required(key="DOCKER_REPO_TYPE")
+        self.parse.add_required(key="DOCKER_REPO_NAME")
+        self.parse.add_required(key="DOCKER_ENV_CRED")
+        self.parse.add_required(key="repo_key_group")
+        self.parse.add_required(key="repo_key_loc")
+        self.parse.add_required(key="git_url")
         self.parse.add_required(key="DOCKER_REGISTRY",default="docker.io")
         self.parse.add_required(key="DOCKER_REPO_TYPE",default="public")
         self.parse.add_required(key="repo_branch",default="dev")
