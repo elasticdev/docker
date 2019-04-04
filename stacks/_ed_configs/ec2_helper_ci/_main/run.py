@@ -287,7 +287,7 @@ def run(stackargs):
 
     # If not run_only, we are registering the image
     if not stack.run_only: 
-        pargs = "image register"
+        cmd = "image register"
         order_type = "register-docker::api"
         role = "image/register"
 
@@ -327,7 +327,7 @@ def run(stackargs):
         human_description = "Registers docker image"
         long_description = "Records the docker image with repo_url = {}, branch = {}, commit_hash = {} to Jiffy DB".format(stack.repo_url,repo_branch,stack.commit_hash)
 
-        stack.insert_builtin_cmd(pargs=pargs,
+        stack.insert_builtin_cmd(cmd,
                                  order_type=order_type,
                                  human_description=human_description,
                                  long_description=long_description,
