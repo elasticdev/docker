@@ -60,8 +60,8 @@ def run(stackargs):
     # add the stack with variables
     stack.ec2_ubuntu.insert(**inputargs)
 
+    return stack.get_results(stackargs.get("destroy_instance"))
+
     #stack.wait_hosts_tag(tags=stack.hostname)
     # publish hostname
     #stack.add_metadata_to_run({"docker_host":stack.hostname},mkey="infrastructure",publish=True)
-
-    return stack.get_results(stackargs.get("destroy_instance"))
