@@ -8,4 +8,6 @@ tags:
    - dockerhost
    - init
    - infrastructure
+   - dev_env
+   - dev
    - featured_infrastructure
