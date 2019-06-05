@@ -11,11 +11,13 @@ class Main(newSchedStack):
 
         self.parse.add_required(key="dockerfile",default="Dockefile")
         self.parse.add_required(key="docker_repo")
-        self.parse.add_required(key="docker_repo_type",default="private")
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
 
         self.parse.add_required(key="commit_info")
+        self.parse.add_required(key="commit_hash")
         self.parse.add_required(key="config_env",default="private")
+
+        self.parse.add_optional(key="config_env",default="private")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
         self.stack.add_substack("elasticdev:::docker::ec2_helper_ci")
@@ -36,7 +38,7 @@ class Main(newSchedStack):
 
         # Docker Image Name and Repo
         if self.docker_tag_method == "commit_hash":
-            self.image_tag = self.commit_info["commit_hash"]
+            self.image_tag = self.commit_hash
         else:
             self.image_tag = self.stack.get_random_string()
 
@@ -45,7 +47,6 @@ class Main(newSchedStack):
     def run_registerdocker(self):
 
         self.parse.add_required(key="docker_host")
-
         self.parse.add_required(key="repo_url")
         self.init_variables()
 
@@ -56,27 +57,26 @@ class Main(newSchedStack):
         self.set_chk_registerdocker_attr()
 
         default_values = {}
-        default_values["docker_repo"] = stack.docker_repo
-        default_values["docker_image"] = stack.docker_image
-        default_values["repo_key_group"] = stack.repo_key_group
-        default_values["tag"] = stack.image_tag
-        default_values["config_env"] = stack.config_env
-        default_values["branch"] = stack.repo_branch
-        default_values["repo_url"] = stack.repo_url
-        default_values["repo_key_loc"] = stack.repo_key_loc
-        default_values["commit_hash"] = stack.commit_hash
-        if hasattr(self,"commit_info"): default_values["commit_info"] = stack.commit_info
+        default_values["docker_repo"] = self.docker_repo
+        default_values["docker_image"] = self.docker_image
+        default_values["repo_key_group"] = self.repo_key_group
+        default_values["tag"] = self.image_tag
+        default_values["config_env"] = self.config_env
+        default_values["branch"] = self.repo_branch
+        default_values["repo_url"] = self.repo_url
+        default_values["repo_key_loc"] = self.repo_key_loc
+        default_values["commit_hash"] = self.commit_hash
+        if hasattr(self,"commit_info"): default_values["commit_info"] = self.commit_info
 
         # do we need to overide here?
-        overide_values = {}
-        overide_values["docker_host"] = stack.docker_host
-        overide_values["DOCKER_FILE"] = stack.DOCKER_FILE_BUILD
+        overide_values = {"docker_host":self.docker_host}
+        overide_values["dockerfile"] = self.dockerfile
 
         inputargs = {"default_values":default_values,
                      "overide_values":overide_values}
 
         inputargs["automation_phase"] = "continuous_delivery"
-        inputargs["human_description"] = 'Building docker container for commit_hash "{}"'.format(stack.commit_hash)
+        inputargs["human_description"] = 'Building docker container for commit_hash "{}"'.format(self.commit_hash)
 
         return self.stack.ec2_helper_ci.insert(display=True,**inputargs)
 
@@ -125,16 +125,3 @@ class Main(newSchedStack):
         self.stack.schedule_on_delete(parallel=delete_instsuffix)
 
         return self.stack.schedules
-
-        #self.parse.add_optional(key="repo_url")
-        #self.parse.add_optional(key="docker_host")
-        #self.parse.add_optional(key="DOCKER_FILE_DIR")
-        #self.parse.add_optional(key="DOCKER_FILD_FOLDER")
-
-        #self.parse.add_optional(key="DOCKER_TEMPLATE_FILE")
-        #self.parse.add_optional(key="DOCKER_TEMPLATE_FOLDER")
-        #self.parse.add_optional(key="DOCKER_TEMPLATE_REPLACEMENTS")
-        #self.parse.add_optional(key="DOCKER_BASE_IMAGE")
-        #self.parse.add_optional(key="DOCKER_RUN_COMMANDS")
-        #self.parse.add_optional(key="DOCKER_ENTRYPOINT")
-        #self.parse.add_optional(key="DOCKER_CMD")
