@@ -7,7 +7,7 @@ class Main(newSchedStack):
         self.parse.add_required(key="repo_branch",default="dev")
         self.parse.add_required(key="repo_key_group")
         self.parse.add_required(key="repo_key_loc")
-        self.parse.add_required(key="git_url")
+        self.parse.add_required(key="repo_url")
 
         self.parse.add_required(key="dockerfile",default="Dockefile")
         self.parse.add_required(key="docker_repo")
@@ -16,8 +16,6 @@ class Main(newSchedStack):
         self.parse.add_required(key="commit_info")
         self.parse.add_required(key="commit_hash")
         self.parse.add_required(key="config_env",default="private")
-
-        self.parse.add_optional(key="config_env",default="private")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
         self.stack.add_substack("elasticdev:::docker::ec2_helper_ci")
