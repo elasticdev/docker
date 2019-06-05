@@ -1,23 +1,4 @@
-def _get_register_variables(tag,stackargs):
-
-    DOCKER_IMAGE = stackargs.get("DOCKER_IMAGE")
-    #####################################
-    if not DOCKER_IMAGE:
-        DOCKER_IMAGE_NAME = stackargs.get("DOCKER_IMAGE_NAME",tag)
-        DOCKER_REPO = stackargs["DOCKER_REPO"].rstrip().lstrip()
-        DOCKER_IMAGE = "{}:{}".format(DOCKER_REPO,DOCKER_IMAGE_NAME)
-    else:
-        docker_elements = DOCKER_IMAGE.split(":")
-        DOCKER_REPO = docker_elements[0]
-        DOCKER_IMAGE_NAME = docker_elements[1]
-
-    return DOCKER_REPO,DOCKER_IMAGE,DOCKER_IMAGE_NAME
-
 def run(stackargs):
-
-    # ShortStack that collapses these stacks
-    # ContinousDelivery/Helpers/Ubuntu/Ec2/Register/DirectPull/docker_guest
-    # ContinousDelivery/Helpers/Ubuntu/Ec2/Docker/Params/DockerGuest/DirectPull/build
 
     import json
 
@@ -28,24 +9,13 @@ def run(stackargs):
     stack.parse.add_required(key="repo_url")
     stack.parse.add_required(key="commit_info")
     stack.parse.add_required(key="repo_key_group")
-    stack.parse.add_required(key="CustomConfigGroups")
     stack.parse.add_required(key="repo_key_loc")
+
     stack.parse.add_required(key="docker_host")
 
     stack.parse.add_optional(key="config_env",default="private")
-    stack.parse.add_optional(key="DOCKER_FILE_DIR",default="/opt")
-    stack.parse.add_optional(key="tag",default=stack.get_random_string())
-    stack.parse.add_optional(key="track",default=True)
-    stack.parse.add_optional(key="DOCKER_ENV_FILE",default=None)
-    stack.parse.add_optional(key="append_groups")
     stack.parse.add_optional(key="sched_name")
-    stack.parse.add_optional(key="DOCKER_ENV_FILE")
-    stack.parse.add_optional(key="PRE_SCRIPTS")
-    stack.parse.add_optional(key="POST_SCRIPTS")
-    stack.parse.add_optional(key="DOCKER_CMD_SCRIPT")
-    stack.parse.add_optional(key="init")
     stack.parse.add_optional(key="repo_branch")
-    stack.parse.add_optional(key="DOCKER_ENV_CRED")
 
     # Add hostgroups
     stack.add_hostgroups("elasticdev:::docker::create_container elasticdev:::docker::push_container","build_groups")
@@ -84,13 +54,7 @@ def run(stackargs):
     # The base environment variables used to build the docker container
     base_env = stackargs.get("base_env","elasticdev:::docker::build")
 
-    # if you provide the DOCKER_BUILD_NAME, we either set it to None or some other value. 
-    # if not provided, then we set it to tag
-    DOCKER_BUILD_NAME = stackargs.get("DOCKER_BUILD_NAME")
-    DOCKER_BUILD_DIR="/var/tmp/docker/build"
     TARBALL_DIR="/usr/src/tarballs"
-    if not stack.DOCKER_ENV_FILE: stack.DOCKER_ENV_FILE="{}/.env".format(DOCKER_BUILD_DIR)
-    DOCKER_ENV_FILE = stack.insert_existing_attr("DOCKER_ENV_FILE",addNone=True)["DOCKER_ENV_FILE"]
 
     # sched_name must be provided
     if not stack.sched_name or stack.sched_name == "None":
@@ -119,13 +83,6 @@ def run(stackargs):
     default_values["build_groups"] = build_groups
 
     optional_keys = []
-    optional_keys.append("DOCKER_BUILD_NAME")
-    optional_keys.append("ssh_port")
-    optional_keys.append("http_port")
-    optional_keys.append("PRE_SCRIPTS")
-    optional_keys.append("POST_SCRIPTS")
-    optional_keys.append("DOCKER_CMD_SCRIPT")
-    optional_keys.append("init")
     optional_keys.append("repo_key_loc")
 
     # If not run_only, we are registering the image
@@ -133,26 +90,19 @@ def run(stackargs):
 
     # Add pipeline metadata
     if not stack.run_only:
-        DOCKER_REPO,DOCKER_IMAGE,DOCKER_IMAGE_NAME = _get_register_variables(stack.tag,stackargs)
         default_values["tag"] = stack.tag
-        default_values["DOCKER_IMAGE"] = DOCKER_IMAGE
-        pipeline_env_var["DOCKER_IMAGE"] = DOCKER_IMAGE
-        pipeline_env_var["DOCKER_IMAGE_NAME"] = DOCKER_IMAGE_NAME
+        default_values["DOCKER_IMAGE"] = stack.docker_image
+        pipeline_env_var["DOCKER_IMAGE"] = stack.docker_image
         pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
         pipeline_env_var["image_tag"] = stack.tag
         stack.add_metadata_to_run(pipeline_env_var,publish=True)
         stack.add_metadata_to_run({"docker":{"name":stack.tag}})
-        stackargs["DOCKER_REPO"] = DOCKER_REPO
-        stack.add_metadata_to_run({"DOCKER_IMAGE":DOCKER_IMAGE},mkey="deploy",env_var=True)
 
     # Add additional views for pipeline env var
     # that isn't published
-    keys2pass = []
-    keys2pass.append("DOCKER_ENV_FILE")
-    keys2pass.append("DOCKER_FILE")
-    keys2pass.append("DOCKER_BUILD_NAME")
-    stack.add_dict2dict(keys2pass,pipeline_env_var,stackargs)
-    pipeline_env_var["DOCKER_FILE_DIR"] = stack.DOCKER_FILE_DIR
+    docker_env_file = "{}/.env".format(stack.dockerfile)
+    pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
+    pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
     stack.add_metadata_to_run(pipeline_env_var,env_var=True)
 
     # check to see if a docker_guest exists
@@ -208,11 +158,8 @@ def run(stackargs):
 
     # add env_references
     env_ref = "{} hostname:{}".format(base_env,docker_guest)
-    DOCKER_ENV_CRED = stack.insert_existing_attr("DOCKER_ENV_CRED",addNone=True)["DOCKER_ENV_CRED"]
-    if DOCKER_ENV_CRED: env_ref = env_ref+" "+DOCKER_ENV_CRED
 
     cvar_name = stack.tag
-    if DOCKER_BUILD_NAME: cvar_name = DOCKER_BUILD_NAME
 
     input_args = {}
     input_args["type"] = "env"
@@ -220,10 +167,10 @@ def run(stackargs):
     input_args["name"] = cvar_name
 
     # DESTDIR for untaring files
-    input_args["contents"] = {"DOCKER_BUILD_DIR":DOCKER_BUILD_DIR,
-                              "DESTDIR":DOCKER_BUILD_DIR,
+    input_args["contents"] = {"DOCKER_BUILD_DIR":"/var/tmp/docker/build",
+                              "DESTDIR":"/var/tmp/docker/build",
                               "TARBALL_DIR":TARBALL_DIR,
-                              "DOCKER_ENV_FILE":DOCKER_ENV_FILE}
+                              "DOCKER_ENV_FILE":docker_env_file}
 
     docker_host_info = stack.check_resource(name=stack.docker_host,
                                             resource_type="server",
@@ -243,12 +190,8 @@ def run(stackargs):
     pipeline_env_var["COMMIT_HASH"] = stack.commit_hash
     existing_keys = [ "rep_key_loc"]
     existing_keys.append("repo_branch")
-    existing_keys.append("PRE_SCRIPTS")
-    existing_keys.append("POST_SCRIPTS")
-    existing_keys.append("DOCKER_CMD_SCRIPT")
     existing_keys.append("repo_url")
     existing_keys.append("repo_branch")
-    existing_keys.append("init")
     stack.insert_existing_attr(existing_keys,inputargs=pipeline_env_var)
     #if hasattr(stack,"repo_key_loc") and stack.repo_key_loc: pipeline_env_var["REPO_KEY_LOC"] = stack.repo_key_loc
     stack.add_metadata_to_run(pipeline_env_var,env_var_run=True)
@@ -312,7 +255,6 @@ def run(stackargs):
         # Parse commit_info
         default_values = {}
         default_values["itype"] = "docker"
-        default_values["name"] = DOCKER_IMAGE_NAME
         default_values["image"] = DOCKER_IMAGE
         default_values["repo_url"] = stack.repo_url
         default_values["config_env"] = stack.config_env

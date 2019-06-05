@@ -4,26 +4,18 @@ class Main(newSchedStack):
 
         newSchedStack.__init__(self,stackargs)
 
-        self.parse.add_required(key="DOCKER_USERNAME")
-        self.parse.add_required(key="DOCKER_REPO_TYPE")
-        self.parse.add_required(key="DOCKER_REPO_NAME")
-        self.parse.add_required(key="DOCKER_ENV_CRED")
+        self.parse.add_required(key="repo_branch",default="dev")
         self.parse.add_required(key="repo_key_group")
         self.parse.add_required(key="repo_key_loc")
         self.parse.add_required(key="git_url")
-        self.parse.add_required(key="DOCKER_REGISTRY",default="docker.io")
-        self.parse.add_required(key="DOCKER_REPO_TYPE",default="public")
-        self.parse.add_required(key="repo_branch",default="dev")
-        self.parse.add_required(key="config_env",default="private")
-        self.parse.add_required(key="ELASTICDEV_CONFIG_GROUP_BUILD")
 
-        self.parse.add_optional(key="ELASTICDEV_CONFIG_GROUP_SCRIPTS")
-        self.parse.add_optional(key="ELASTICDEV_ACCESS_GROUP")
-        self.parse.add_optional(key="INIT")
-        self.parse.add_optional(key="PRE_SCRIPTS")
-        self.parse.add_optional(key="POST_SCRIPTS")
-        self.parse.add_optional(key="commit_hash")
-        self.parse.add_optional(key="commit_info")
+        self.parse.add_required(key="dockerfile",default="Dockefile")
+        self.parse.add_required(key="docker_repo")
+        self.parse.add_required(key="docker_repo_type",default="private")
+        self.parse.add_required(key="docker_tag_method",default="commit_hash")
+
+        self.parse.add_required(key="commit_info")
+        self.parse.add_required(key="config_env",default="private")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
         self.stack.add_substack("elasticdev:::docker::ec2_helper_ci")
@@ -35,29 +27,26 @@ class Main(newSchedStack):
         self.init_variables()
 
         inputargs = {}
-        inputargs["default_values"] = {"commit_info":self.commit_info}
         inputargs["automation_phase"] = "continuous_delivery"
         inputargs["human_description"] = 'Publish commit_info'
+        inputargs["default_values"] = {"commit_info":self.commit_info}
         return self.stack.run_commit_info.insert(display=True,**inputargs)
 
     def set_chk_registerdocker_attr(self):
 
         # Docker Image Name and Repo
-        self.DOCKER_REPO = "{}/{}/{}".format(self.DOCKER_REGISTRY,self.DOCKER_USERNAME,self.DOCKER_REPO_NAME)
-        self.image_tag = self.stack.get_random_string()
-        self.DOCKER_IMAGE = "{}:{}".format(self.DOCKER_REPO,self.image_tag)
+        if self.docker_tag_method == "commit_hash":
+            self.image_tag = self.commit_info["commit_hash"]
+        else:
+            self.image_tag = self.stack.get_random_string()
+
+        self.docker_image = "{}:{}".format(self.docker_repo,self.image_tag)
 
     def run_registerdocker(self):
 
-        self.parse.add_required(key="DOCKER_FILE_BUILD",default="Dockefile")
         self.parse.add_required(key="docker_host")
+
         self.parse.add_required(key="repo_url")
-
-        self.parse.add_optional(key="DOCKER_BUILD_NAME")
-        self.parse.add_optional(key="DOCKER_ENV_FILE")
-        self.parse.add_optional(key="ssh_port")
-        self.parse.add_optional(key="http_port")
-
         self.init_variables()
 
         # This sets the commit info need to register the image
@@ -67,43 +56,29 @@ class Main(newSchedStack):
         self.set_chk_registerdocker_attr()
 
         default_values = {}
-        default_values["DOCKER_ENV_CRED"] = self.DOCKER_ENV_CRED
-        default_values["DOCKER_REPO"] = self.DOCKER_REPO
-        default_values["DOCKER_IMAGE"] = self.DOCKER_IMAGE
-        default_values["DOCKER_IMAGE_NAME"] = self.image_tag
-        default_values["repo_key_group"] = self.repo_key_group
-        default_values["tag"] = self.image_tag
-        default_values["config_env"] = self.config_env
-        default_values["branch"] = self.repo_branch
-        default_values["repo_url"] = self.repo_url
-        default_values["repo_key_loc"] = self.repo_key_loc
-        default_values["commit_hash"] = self.commit_hash
-        if hasattr(self,"commit_info"): default_values["commit_info"] = self.commit_info
-        if hasattr(self,"INIT"): default_values["INIT"] = self.INIT
-        if hasattr(self,"PRE_SCRIPTS"): default_values["PRE_SCRIPTS"] = self.PRE_SCRIPTS
-        if hasattr(self,"POST_SCRIPTS"): default_values["POST_SCRIPTS"] = self.POST_SCRIPTS
+        default_values["docker_repo"] = stack.docker_repo
+        default_values["docker_image"] = stack.docker_image
+        default_values["repo_key_group"] = stack.repo_key_group
+        default_values["tag"] = stack.image_tag
+        default_values["config_env"] = stack.config_env
+        default_values["branch"] = stack.repo_branch
+        default_values["repo_url"] = stack.repo_url
+        default_values["repo_key_loc"] = stack.repo_key_loc
+        default_values["commit_hash"] = stack.commit_hash
+        if hasattr(self,"commit_info"): default_values["commit_info"] = stack.commit_info
 
         # do we need to overide here?
         overide_values = {}
-        overide_values["docker_host"] = self.docker_host
-        overide_values["DOCKER_FILE"] = self.DOCKER_FILE_BUILD
-        overide_values["CustomConfigGroups"] = "local:::private::{}".format(self.ELASTICDEV_CONFIG_GROUP_BUILD)
-        if hasattr(self,'ELASTICDEV_ACCESS_GROUP'): 
-            overide_values["CustomConfigGroups"] = "{} local:::private::{}".format(overide_values["CustomConfigGroups"],
-                                                                                   self.ELASTICDEV_ACCESS_GROUP)
-
-        if hasattr(self,'ELASTICDEV_CONFIG_GROUP_SCRIPTS'): 
-            overide_values["CustomConfigGroups"] = "{} local:::private::{}".format(overide_values["CustomConfigGroups"],
-                                                                                   self.ELASTICDEV_CONFIG_GROUP_SCRIPTS)
+        overide_values["docker_host"] = stack.docker_host
+        overide_values["DOCKER_FILE"] = stack.DOCKER_FILE_BUILD
 
         inputargs = {"default_values":default_values,
                      "overide_values":overide_values}
 
         inputargs["automation_phase"] = "continuous_delivery"
-        inputargs["human_description"] = 'Building docker container for commit_hash "{}"'.format(self.commit_hash)
+        inputargs["human_description"] = 'Building docker container for commit_hash "{}"'.format(stack.commit_hash)
 
         return self.stack.ec2_helper_ci.insert(display=True,**inputargs)
-        ##############################################
 
     def run(self):
     

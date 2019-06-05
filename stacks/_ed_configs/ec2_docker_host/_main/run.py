@@ -12,6 +12,7 @@ def run(stackargs):
     stack.parse.add_optional(key="sg_web_label",default="null")
     stack.parse.add_optional(key="sg",default="null")
     stack.parse.add_optional(key="sg_web",default="null")
+    stack.parse.add_optional(key="size")
 
     # Add substacks
     stack.add_substack('elasticdev:::ed_core::getlock_host')
@@ -38,8 +39,7 @@ def run(stackargs):
                      "security_group",
                      "region"]
 
-    default_values = {}
-    default_values["size"] = "t2.medium"
+    default_values = {"size":"t2.medium"}
     default_values["disksize"] = 100
     default_values["hostname"] = stack.hostname
     default_values["key"] = stack.key
