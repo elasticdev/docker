@@ -81,13 +81,10 @@ class Main(newSchedStack):
     def run(self):
     
         self.stack.unset_parallel()
-        ##############################################
         self.stack.add_job("registerdocker",instance_name="auto")
-        #####################################
         self.stack.add_job("updatecode",instance_name="auto")
-        ##############################################
-        ###Evaluating Jobs and loads
-        ##############################################
+
+        # Evaluating Jobs and loads
         for run_job in self.stack.get_jobs(): eval(run_job)
 
         return self.stack.get_results(self.stack.stackargs.get("destroy_instance"))
