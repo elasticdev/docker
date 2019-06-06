@@ -22,12 +22,16 @@ class Main(newSchedStack):
 
     def run_updatecode(self):
 
-        self.parse.add_required(key="commit_info")
-        self.parse.add_required(key="commit_hash")
+        self.parse.add_optional(key="commit_info",default="null")
+        self.parse.add_optional(key="commit_hash",default="null")
+        self.parse.add_optional(key="init",default="null")
         self.init_variables()
 
-        inputargs = {}
-        inputargs["automation_phase"] = "continuous_delivery"
+        if not self.commit_info and not self.init:
+            msg = "you need commit_info unless this is the first code retrieval"
+            self.stack.ehandle.NeedRtInput(message=msg)
+
+        inputargs = {"automation_phase":"continuous_delivery"}
         inputargs["human_description"] = 'Publish commit_info'
         inputargs["default_values"] = {"commit_info":self.commit_info}
         return self.stack.run_commit_info.insert(display=True,**inputargs)
@@ -54,8 +58,7 @@ class Main(newSchedStack):
         self.set_commit_info()
         self.set_chk_registerdocker_attr()
 
-        default_values = {}
-        default_values["docker_repo"] = self.docker_repo
+        default_values = {"docker_repo":self.docker_repo}
         default_values["docker_image"] = self.docker_image
         default_values["repo_key_group"] = self.repo_key_group
         default_values["tag"] = self.image_tag

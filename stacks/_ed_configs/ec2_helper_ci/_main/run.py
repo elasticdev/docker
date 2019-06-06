@@ -24,7 +24,8 @@ def run(stackargs):
     stack.add_hostgroups("elasticdev:::docker::create_container elasticdev:::docker::push_container","build_groups")
 
     # Add substacks
-    stack.add_substack('elasticdev:::ed_core::run_commit_info')
+    stack.add_substack('elasticdev:::run_commit_info')
+    stack.add_substack('elasticdev:::ec2_docker_host')
 
     # init the stack namespace
     stack.init_variables()
@@ -42,6 +43,19 @@ def run(stackargs):
         msg = "base_default_values is not a dictionary. It is {}".format(type(stack.commit_info))
         stack.logger.error(msg)
         stack.ehandle.NeedRtInput(message=msg)
+
+    # Create docker host
+    default_values = {"size":"t2.micro"}
+    default_values["disksize"] = 25
+    default_values["hostname"] = stack.docker_host
+    #default_values["vpc_id"] = <vpc_id>
+
+    human_description = "Creates docker host"
+
+    inputargs = {"default_values":default_values}
+    inputargs["automation_phase"] = "continuous_delivery"
+    inputargs["human_description"] = human_description
+    stack.ec2_docker_host.insert(display=True,**inputargs)
 
     # We can't add set_parallel before an order is provided
     cmd = "sleep {0}".format(1)
