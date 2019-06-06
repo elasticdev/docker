@@ -52,14 +52,17 @@ class Main(newSchedStack):
         self.parse.add_required(key="repo_url")
         self.init_variables()
 
-        if not self.docker_host: 
-            self.docker_host = "{}-{}".format(self.commit_hash,self.get_random(size=3))
-
         # This sets the commit info need to register the image
         # we don't put this in the parsing arguments requested 
         # since it is retrieved from the "run"
         self.set_commit_info()
         self.set_chk_registerdocker_attr()
+
+        if not self.docker_host: 
+            if self.commit_hash:
+                self.docker_host = "{}-{}".format(self.commit_hash,self.get_random(size=3))
+            else:
+                self.docker_host = self.get_random(size=10)
 
         default_values = {"docker_repo":self.docker_repo}
         default_values["docker_image"] = self.docker_image
