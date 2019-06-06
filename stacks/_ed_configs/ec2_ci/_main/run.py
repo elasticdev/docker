@@ -48,9 +48,12 @@ class Main(newSchedStack):
 
     def run_registerdocker(self):
 
-        self.parse.add_required(key="docker_host")
+        self.parse.add_required(key="docker_host",default="null")
         self.parse.add_required(key="repo_url")
         self.init_variables()
+
+        if not self.docker_host: 
+            self.docker_host = "{}-{}".format(self.commit_hash,self.get_random(size=3))
 
         # This sets the commit info need to register the image
         # we don't put this in the parsing arguments requested 
