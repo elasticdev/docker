@@ -13,8 +13,6 @@ class Main(newSchedStack):
         self.parse.add_required(key="docker_repo")
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
 
-        self.parse.add_required(key="commit_info")
-        self.parse.add_required(key="commit_hash")
         self.parse.add_required(key="config_env",default="private")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
@@ -24,6 +22,8 @@ class Main(newSchedStack):
 
     def run_updatecode(self):
 
+        self.parse.add_required(key="commit_info")
+        self.parse.add_required(key="commit_hash")
         self.init_variables()
 
         inputargs = {}
