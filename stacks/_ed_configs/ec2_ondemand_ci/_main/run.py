@@ -62,12 +62,25 @@ def run(stackargs):
     # Set parallel
     stack.set_parallel()
 
-    default_values = {"repo_url":stack.repo_url}
-    default_values["build_groups"] = stack.build_groups
-    default_values["docker_host"] = stack.docker_host
-    default_values["commit_info"] = stack.commit_info
-    default_values["commit_hash"] = stack.commit_hash
-    default_values["repo_key_group"] = stack.repo_key_group
+    # We add EnvVars for the Run only
+    pipeline_env_var = {"COMMIT_HASH":stack.commit_hash}
+    pipeline_env_var["REPO_BRANCH"] = stack.repo_branch
+    pipeline_env_var["REPO_URL"] = stack.repo_url
+    stack.add_metadata_to_run(pipeline_env_var,env_var_run=True)
+
+    # Publish commit_info
+    default_values = {"commit_info":stack.commit_info}
+    inputargs = {"default_values":default_values}
+    inputargs["automation_phase"] = "continuous_delivery"
+    inputargs["human_description"] = 'Publish commit_info'
+    stack.run_commit_info.insert(display=True,**inputargs)
+
+    #default_values = {"repo_url":stack.repo_url}
+    #default_values["build_groups"] = stack.build_groups
+    #default_values["docker_host"] = stack.docker_host
+    #default_values["commit_info"] = stack.commit_info
+    #default_values["commit_hash"] = stack.commit_hash
+    #default_values["repo_key_group"] = stack.repo_key_group
 
     pipeline_env_var = {"DOCKER_IMAGE":stack.docker_image}
     pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
@@ -82,6 +95,7 @@ def run(stackargs):
     pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
     stack.add_metadata_to_run(pipeline_env_var,env_var=True)
 
+    # Add cluster vars
     env_ref = "{} hostname:{}".format(stack.base_env,stack.docker_host)
     cvar_name = stack.tag
 
@@ -89,49 +103,34 @@ def run(stackargs):
     input_args["env_ref"] = env_ref
     input_args["name"] = cvar_name
 
-    # DESTDIR for untaring files
     input_args["contents"] = {"DOCKER_BUILD_DIR":"/var/tmp/docker/build",
                               "DESTDIR":"/var/tmp/docker/build",
                               "TARBALL_DIR":"/usr/src/tarballs",
                               "DOCKER_ENV_FILE":docker_env_file}
+
+    input_args["contents"]["DOCKER_IMAGE"] = stack.docker_image
+    input_args["tags"] = "docker container ci build register {} {}".format(cvar_name,stack.docker_host)
+
+    stack.add_cluster_envs(**input_args)
+
+    # Wait to complete on host
+    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
 
     #docker_host_info = stack.check_resource(name=stack.docker_host,
     #                                        resource_type="server",
     #                                        must_exists=True)[0]
     #input_args["contents"]["DOCKERHOST_PUBLIC_IP"] = docker_host_info["public_ip"]
     #input_args["contents"]["DOCKERHOST_PRIVATE_IP"] = docker_host_info["private_ip"]
-    input_args["contents"]["DOCKER_IMAGE"] = stack.docker_image
-
-    input_args["tags"] = "docker container ci build register {} {}".format(cvar_name,stack.docker_host)
-    input_args["track"] = stack.track
-
-    # We add EnvVars for the Run only
-    pipeline_env_var = {}
-    pipeline_env_var["COMMIT_HASH"] = stack.commit_hash
-    pipeline_env_var["REPO_BRANCH"] = stack.repo_branch
-    pipeline_env_var["REPO_URL"] = stack.repo_url
-    stack.add_metadata_to_run(pipeline_env_var,env_var_run=True)
-
-    # Publish commit_info
-    default_values = {"commit_info":stack.commit_info}
-    inputargs = {"default_values":default_values}
-    inputargs["automation_phase"] = "continuous_delivery"
-    inputargs["human_description"] = 'Publish commit_info'
-    stack.run_commit_info.insert(display=True,**inputargs)
-
-    # Wait to complete on host
-    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
+    #input_args["track"] = stack.track
 
     # Disable parallelism
     stack.unset_parallel()
-
-    # Associated cluster vars to hostgroups
-    stack.add_cluster_envs(**input_args)
 
     # Add repo key group to list of groups
     groups = 'local:::private::{} {}'.format(stack.repo_key_group,
                                              stack.build_groups)
 
+    # Associated cluster vars to hostgroups
     cvar_entry_env='name:{}'.format(cvar_name)
     stack.associate_cluster_env(groups=groups,entry=cvar_entry_env)
     stack.add_group_orders(groups,hostname=stack.docker_host,unassign=True)
