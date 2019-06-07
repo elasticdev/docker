@@ -60,7 +60,7 @@ class Main(newSchedStack):
 
         if not self.docker_host: 
             if self.commit_hash:
-                self.docker_host = "{}-{}".format(self.commit_hash,self.get_random(size=3))
+                self.docker_host = "{}-{}".format(self.commit_hash,self.stack.get_random_string(size=3))
             else:
                 self.docker_host = self.get_random(size=10)
 
