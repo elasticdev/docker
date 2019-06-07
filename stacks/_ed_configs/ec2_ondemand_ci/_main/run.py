@@ -54,17 +54,10 @@ def run(stackargs):
     #default_values["vpc_id"] = <vpc_id>
 
     human_description = "Creates docker host"
-
     inputargs = {"default_values":default_values}
     inputargs["automation_phase"] = "continuous_delivery"
     inputargs["human_description"] = human_description
     stack.ec2_docker_host.insert(display=True,**inputargs)
-
-    # We can't add set_parallel before an order is provided
-    cmd = "sleep {0}".format(1)
-    stack.add_external_cmd(cmd=cmd,
-                           order_type="sleep::shellout",
-                           role="external/cli/execute")
 
     # Set parallel
     stack.set_parallel()
@@ -102,12 +95,11 @@ def run(stackargs):
                               "TARBALL_DIR":"/usr/src/tarballs",
                               "DOCKER_ENV_FILE":docker_env_file}
 
-    docker_host_info = stack.check_resource(name=stack.docker_host,
-                                            resource_type="server",
-                                            must_exists=True)[0]
-
-    input_args["contents"]["DOCKERHOST_PUBLIC_IP"] = docker_host_info["public_ip"]
-    input_args["contents"]["DOCKERHOST_PRIVATE_IP"] = docker_host_info["private_ip"]
+    #docker_host_info = stack.check_resource(name=stack.docker_host,
+    #                                        resource_type="server",
+    #                                        must_exists=True)[0]
+    #input_args["contents"]["DOCKERHOST_PUBLIC_IP"] = docker_host_info["public_ip"]
+    #input_args["contents"]["DOCKERHOST_PRIVATE_IP"] = docker_host_info["private_ip"]
     input_args["contents"]["DOCKER_IMAGE"] = stack.docker_image
 
     input_args["tags"] = "docker container ci build register {} {}".format(cvar_name,stack.docker_host)
@@ -120,7 +112,7 @@ def run(stackargs):
     pipeline_env_var["REPO_URL"] = stack.repo_url
     stack.add_metadata_to_run(pipeline_env_var,env_var_run=True)
 
-    ######################################################
+    # Publish commit_info
     default_values = {"commit_info":stack.commit_info}
     inputargs = {"default_values":default_values}
     inputargs["automation_phase"] = "continuous_delivery"
