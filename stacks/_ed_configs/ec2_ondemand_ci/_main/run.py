@@ -111,7 +111,13 @@ def run(stackargs):
                               "DOCKER_ENV_FILE":docker_env_file}
 
     input_args["contents"]["DOCKER_IMAGE"] = stack.docker_image
-    input_args["tags"] = "docker container ci build register {} {}".format(cvar_name,stack.docker_host)
+    input_args["tags"] = [ "docker",
+                           "container",
+                           "ci",
+                           "build",
+                           "register",
+                           cvar_name,
+                           stack.docker_host ]
 
     stack.add_cluster_envs(**input_args)
 
