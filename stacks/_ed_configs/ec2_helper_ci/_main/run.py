@@ -73,16 +73,11 @@ def run(stackargs):
     default_values["commit_hash"] = stack.commit_hash
     default_values["repo_key_group"] = stack.repo_key_group
 
-    # If not run_only, we are registering the image
-    pipeline_env_var = {}
-
-    # Add pipeline metadata
-    if not stack.run_only:
-        pipeline_env_var["DOCKER_IMAGE"] = stack.docker_image
-        pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
-        pipeline_env_var["image_tag"] = stack.tag
-        stack.add_metadata_to_run(pipeline_env_var,publish=True)
-        stack.add_metadata_to_run({"docker":{"name":stack.tag}})
+    pipeline_env_var = {"DOCKER_IMAGE":stack.docker_image}
+    pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
+    pipeline_env_var["image_tag"] = stack.tag
+    stack.add_metadata_to_run(pipeline_env_var,publish=True)
+    stack.add_metadata_to_run({"docker":{"name":stack.tag}})
 
     # Add additional views for pipeline env var
     # that isn't published
@@ -110,9 +105,7 @@ def run(stackargs):
 
     input_args["contents"]["DOCKERHOST_PUBLIC_IP"] = docker_host_info["public_ip"]
     input_args["contents"]["DOCKERHOST_PRIVATE_IP"] = docker_host_info["private_ip"]
-
-    # If not run_only, we are registering the image
-    if not stack.run_only: input_args["contents"]["DOCKER_IMAGE"] = stack.docker_image
+    input_args["contents"]["DOCKER_IMAGE"] = stack.docker_image
 
     input_args["tags"] = "docker container ci build register {} {}".format(cvar_name,stack.docker_host)
     input_args["track"] = stack.track
@@ -151,7 +144,6 @@ def run(stackargs):
     # Wait to complete on host
     stack.wait_hosts_tag(hostname=stack.docker_host)
 
-    # If not run_only, we are registering the image
     cmd = "image register"
     order_type = "register-docker::api"
     role = "image/register"
