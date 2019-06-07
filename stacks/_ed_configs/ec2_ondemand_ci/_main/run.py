@@ -29,6 +29,7 @@ def run(stackargs):
     # Add substacks
     stack.add_substack('elasticdev:::run_commit_info')
     stack.add_substack('elasticdev:::ec2_docker_host')
+    stack.add_substack('elasticdev:::wrapper_add_hostgroup')
 
     # init the stack namespace
     stack.init_variables()
@@ -135,8 +136,15 @@ def run(stackargs):
     cvar_entry_env='name:{}'.format(cvar_name)
     stack.associate_cluster_env(groups=groups,entry=cvar_entry_env)
 
-    # Testing
+    # Execute orders on docker_host
     #stack.add_group_orders(groups,hostname=stack.docker_host,unassign=True)
+    human_description = 'Execute orders/tasks on hostname = "{}"'.format(stack.docker_host)
+    default_values = {"groups":groups}
+    default_values["hostname"] = stack.docker_host
+    inputargs = {"default_values":default_values}
+    inputargs["automation_phase"] = "continuous_delivery"
+    inputargs["human_description"] = human_description
+    stack.wrapper_add_hostgroup.insert(display=True,**inputargs)
 
     # Wait to complete on host
     stack.wait_hosts_tag(hostname=stack.docker_host)
