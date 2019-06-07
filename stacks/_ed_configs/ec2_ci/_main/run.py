@@ -18,6 +18,7 @@ class Main(newSchedStack):
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
         self.stack.add_substack("elasticdev:::docker::ec2_ondemand_ci")
+
         #self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
 
         self.stack.init_substacks()
