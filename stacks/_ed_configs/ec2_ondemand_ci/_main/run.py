@@ -51,6 +51,7 @@ def run(stackargs):
     default_values = {"size":"t2.micro"}
     default_values["disksize"] = 25
     default_values["hostname"] = stack.docker_host
+    default_values["ip_key"] = "public_ip"
     #default_values["vpc_id"] = <vpc_id>
 
     human_description = "Creates docker host"
@@ -176,7 +177,6 @@ def run(stackargs):
     stack.add_dict2dict(keys2pass,default_values,stackargs)
 
     human_description = "Registers docker image"
-
     long_description = "Records the docker image with repo_url = {}, branch = {}, commit_hash = {} to Jiffy DB".format(stack.repo_url,
                                                                                                                        repo_branch,
                                                                                                                        stack.commit_hash)
