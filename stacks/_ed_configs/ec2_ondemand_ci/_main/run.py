@@ -133,7 +133,9 @@ def run(stackargs):
     # Associated cluster vars to hostgroups
     cvar_entry_env='name:{}'.format(cvar_name)
     stack.associate_cluster_env(groups=groups,entry=cvar_entry_env)
-    stack.add_group_orders(groups,hostname=stack.docker_host,unassign=True)
+
+    # Testing
+    #stack.add_group_orders(groups,hostname=stack.docker_host,unassign=True)
 
     # Wait to complete on host
     stack.wait_hosts_tag(hostname=stack.docker_host)
