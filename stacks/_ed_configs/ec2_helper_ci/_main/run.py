@@ -9,6 +9,7 @@ def run(stackargs):
     stack.parse.add_required(key="repo_url")
     stack.parse.add_required(key="commit_info")
     stack.parse.add_required(key="repo_key_group")
+    stack.parse.add_required(key="docker_image")
 
     # The base environment variables used to build the docker container
     stack.parse.add_required(key="base_env",default="elasticdev:::docker::build")
