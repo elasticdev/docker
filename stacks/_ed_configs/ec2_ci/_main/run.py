@@ -14,11 +14,11 @@ class Main(newSchedStack):
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
 
         self.parse.add_required(key="config_env",default="private")
-        self.parse.add_required(key="ci_method",default="standby")
+        self.parse.add_required(key="ci_method",default="ondemand")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
-        self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
-        #self.stack.add_substack("elasticdev:::docker::ec2_ondemand_ci")
+        self.stack.add_substack("elasticdev:::docker::ec2_ondemand_ci")
+        #self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
 
         self.stack.init_substacks()
 
@@ -87,7 +87,7 @@ class Main(newSchedStack):
         inputargs["automation_phase"] = "continuous_delivery"
         inputargs["human_description"] = 'Building docker container for commit_hash "{}"'.format(self.commit_hash)
 
-        if self.ci_method == "standby": return self.stack.ec2_standby_ci.insert(display=True,**inputargs)
+        if self.ci_method == "ondemand": return self.stack.ec2_ondemand_ci.insert(display=True,**inputargs)
 
     def run(self):
     
