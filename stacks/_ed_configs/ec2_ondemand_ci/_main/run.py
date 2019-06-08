@@ -99,6 +99,9 @@ def run(stackargs):
     pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
     stack.add_metadata_to_run(pipeline_env_var,env_var=True)
 
+    # Wait to complete on host
+    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
+
     # Add cluster vars
     env_ref = "{} hostname:{}".format(stack.base_env,stack.docker_host)
     cvar_name = stack.tag
@@ -122,9 +125,6 @@ def run(stackargs):
                            stack.docker_host ]
 
     stack.add_cluster_envs(**input_args)
-
-    # Wait to complete on host
-    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
 
     #docker_host_info = stack.check_resource(name=stack.docker_host,
     #                                        resource_type="server",
