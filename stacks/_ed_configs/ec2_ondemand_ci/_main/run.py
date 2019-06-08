@@ -12,6 +12,8 @@ def run(stackargs):
     stack.parse.add_required(key="docker_image")
     stack.parse.add_required(key="dockerfile",default="Dockerfile")
     stack.parse.add_required(key="tag",default="null")
+    stack.parse.add_required(key="docker_host_size",default="t2.micro")
+    stack.parse.add_required(key="docker_host_disksize",default=30)
 
     # The base environment variables used to build the docker container
     stack.parse.add_required(key="base_env",default="elasticdev:::docker::build")
@@ -48,9 +50,12 @@ def run(stackargs):
         stack.logger.error(msg)
         stack.ehandle.NeedRtInput(message=msg)
 
+    # Set parallel
+    stack.set_parallel()
+
     # Create docker host
-    default_values = {"size":"t2.micro"}
-    default_values["disksize"] = 25
+    default_values = {"size":stack.docker_host_size}
+    default_values["disksize"] = stack.docker_host_disksize
     default_values["hostname"] = stack.docker_host
     default_values["ip_key"] = "public_ip"
     #default_values["vpc_id"] = <vpc_id>
@@ -60,9 +65,6 @@ def run(stackargs):
     inputargs["automation_phase"] = "continuous_delivery"
     inputargs["human_description"] = human_description
     stack.ec2_docker_host.insert(display=True,**inputargs)
-
-    # Set parallel
-    stack.set_parallel()
 
     # We add EnvVars for the Run only
     pipeline_env_var = {"COMMIT_HASH":stack.commit_hash}
