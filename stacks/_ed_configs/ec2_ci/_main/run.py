@@ -15,12 +15,11 @@ class Main(newSchedStack):
         self.parse.add_required(key="docker_host_size",default="t2.micro")
 
         self.parse.add_required(key="config_env",default="private")
-        self.parse.add_required(key="ci_method",default="ondemand")
+        self.parse.add_required(key="ci_method",default="standby")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
         self.stack.add_substack("elasticdev:::docker::ec2_ondemand_ci")
-
-        #self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
+        self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
 
         self.stack.init_substacks()
 
@@ -69,7 +68,6 @@ class Main(newSchedStack):
                 self.docker_host = self.get_random(size=10)
 
         default_values = {"docker_repo":self.docker_repo}
-        default_values["docker_image"] = self.docker_image
         default_values["repo_key_group"] = self.repo_key_group
         default_values["tag"] = self.image_tag
         default_values["config_env"] = self.config_env
@@ -77,7 +75,11 @@ class Main(newSchedStack):
         default_values["repo_url"] = self.repo_url
         default_values["repo_key_loc"] = self.repo_key_loc
         default_values["commit_hash"] = self.commit_hash
-        default_values["docker_host_size"] = self.docker_host_size
+
+        if self.ci_method == "ondemand": 
+            default_values["docker_image"] = self.docker_image
+            default_values["docker_host_size"] = self.docker_host_size
+
         if hasattr(self,"commit_info"): default_values["commit_info"] = self.commit_info
 
         # do we need to overide here?
@@ -91,6 +93,7 @@ class Main(newSchedStack):
         inputargs["human_description"] = 'Building docker container for commit_hash "{}"'.format(self.commit_hash)
 
         if self.ci_method == "ondemand": return self.stack.ec2_ondemand_ci.insert(display=True,**inputargs)
+        if self.ci_method == "standby": return self.stack.ec2_standby_ci.insert(display=True,**inputargs)
 
     def run(self):
     
