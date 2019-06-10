@@ -62,6 +62,7 @@ def run(stackargs):
 
     #stack.wait_hosts_tag(tags=stack.hostname)
     # publish hostname
-    #stack.add_metadata_to_run({"docker_host":stack.hostname},mkey="infrastructure",publish=True)
+    #stack.publish({"docker_host":stack.hostname})
+    #stack.add_metadata_to_run({"docker_host":stack.hostname},mkey="infrastructure")
 
     return stack.get_results(stackargs.get("destroy_instance"))

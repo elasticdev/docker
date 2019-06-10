@@ -70,7 +70,7 @@ def run(stackargs):
     pipeline_env_var = {"COMMIT_HASH":stack.commit_hash}
     pipeline_env_var["REPO_BRANCH"] = stack.repo_branch
     pipeline_env_var["REPO_URL"] = stack.repo_url
-    stack.add_metadata_to_run(pipeline_env_var,env_var_run=True)
+    stack.add_host_env_vars_to_run(pipeline_env_var)
 
     # Publish commit_info
     default_values = {"commit_info":stack.commit_info}
@@ -89,7 +89,7 @@ def run(stackargs):
     pipeline_env_var = {"DOCKER_IMAGE":stack.docker_image}
     pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
     pipeline_env_var["image_tag"] = stack.tag
-    stack.add_metadata_to_run(pipeline_env_var,publish=True)
+    stack.publish(pipeline_env_var)
     stack.add_metadata_to_run({"docker":{"name":stack.tag}})
 
     # Add additional views for pipeline env var
@@ -97,7 +97,7 @@ def run(stackargs):
     docker_env_file = "{}/.env".format(stack.dockerfile)
     pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
     pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
-    stack.add_metadata_to_run(pipeline_env_var,env_var=True)
+    stack.add_host_env_vars_to_run(pipeline_env_var)
 
     # Add cluster vars
     env_ref = "{} hostname:{}".format(stack.base_env,stack.docker_host)
