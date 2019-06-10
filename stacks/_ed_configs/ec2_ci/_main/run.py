@@ -75,9 +75,9 @@ class Main(newSchedStack):
         default_values["repo_url"] = self.repo_url
         default_values["repo_key_loc"] = self.repo_key_loc
         default_values["commit_hash"] = self.commit_hash
+        default_values["docker_image"] = self.docker_image
 
         if self.ci_method == "ondemand": 
-            default_values["docker_image"] = self.docker_image
             default_values["docker_host_size"] = self.docker_host_size
 
         if hasattr(self,"commit_info"): default_values["commit_info"] = self.commit_info
