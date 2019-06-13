@@ -9,8 +9,12 @@ def run(stackargs):
     stack.parse.add_required(key="repo_url")
     stack.parse.add_required(key="commit_info")
     stack.parse.add_required(key="repo_key_group")
-    stack.parse.add_required(key="docker_image")
+    stack.parse.add_required(key="docker_repo")
     stack.parse.add_required(key="dockerfile",default="Dockerfile")
+    stack.parse.add_required(key="docker_env_file",default="null")
+    stack.parse.add_required(key="docker_build_dir",default="/var/tmp/docker/build")
+    stack.parse.add_required(key="destdir",default="/var/tmp/docker/build")
+    stack.parse.add_required(key="tarball_dir",default="/usr/src/tarballs")
     stack.parse.add_required(key="tag",default="null")
 
     # The base environment variables used to build the docker container
@@ -63,19 +67,18 @@ def run(stackargs):
     inputargs["human_description"] = 'Publish commit_info'
     stack.run_commit_info.insert(display=True,**inputargs)
 
-    pipeline_env_var = {"DOCKER_IMAGE":stack.docker_image}
+    pipeline_env_var = {"DOCKER_REPO":stack.docker_repo}
     pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
     pipeline_env_var["image_tag"] = stack.tag
     stack.publish(pipeline_env_var)
 
     # Add additional views for pipeline env var
     # that isn't published
-    pipeline_env_var["DOCKER_BUILD_DIR"] = "/var/tmp/docker/build"
-    pipeline_env_var["DESTDIR"] = "/var/tmp/docker/build"
-    pipeline_env_var["TARBALL_DIR"] = "/usr/src/tarballs"
-    docker_env_file = "/var/tmp/docker/build/.env".format(stack.dockerfile)
-    pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
+    pipeline_env_var["DOCKER_BUILD_DIR"] = stack.docker_build_dir
+    pipeline_env_var["DESTDIR"] = stack.destdir
+    pipeline_env_var["TARBALL_DIR"] = stack.tarball_dir
     pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
+    if stack.docker_env_file: pipeline_env_var["DOCKER_ENV_FILE"] = stack.docker_env_file
     stack.add_host_env_vars_to_run(pipeline_env_var)
 
     # Disable parallelism
@@ -133,11 +136,11 @@ def run(stackargs):
     # Parse commit_info
     default_values = {"image_metadata":image_metadata}
     default_values["itype"] = "docker"
-    default_values["image"] = stack.docker_image
     default_values["repo_url"] = stack.repo_url
     default_values["config_env"] = stack.config_env
     default_values["commit_hash"] = stack.commit_hash
     default_values["cluster"] = stack.cluster
+    #default_values["image"] = stack.docker_image
     if repo_branch: default_values["branch"] = repo_branch
 
     keys2pass = ["schedule_id", "job_id", "run_id", "job_instance_id"]

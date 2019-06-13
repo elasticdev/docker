@@ -46,8 +46,6 @@ class Main(newSchedStack):
         else:
             self.image_tag = self.stack.get_random_string()
 
-        self.docker_image = "{}:{}".format(self.docker_repo,self.image_tag)
-
     def run_registerdocker(self):
 
         self.parse.add_required(key="docker_host",default="null")
@@ -74,7 +72,7 @@ class Main(newSchedStack):
         default_values["repo_url"] = self.repo_url
         default_values["repo_key_loc"] = self.repo_key_loc
         default_values["commit_hash"] = self.commit_hash
-        default_values["docker_image"] = self.docker_image
+        default_values["docker_repo"] = self.docker_repo
 
         if self.ci_method == "ondemand": 
             default_values["docker_host_size"] = self.docker_host_size
