@@ -104,7 +104,7 @@ class Main(newSchedStack):
         # Evaluating Jobs and loads
         for run_job in self.stack.get_jobs(): eval(run_job)
 
-        return self.stack.get_results(self.stack.stackargs.get("destroy_instance"))
+        return self.stack.get_results()
 
     def schedule(self):
 

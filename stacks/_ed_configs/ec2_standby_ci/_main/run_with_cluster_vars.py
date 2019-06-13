@@ -67,16 +67,47 @@ def run(stackargs):
     pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
     pipeline_env_var["image_tag"] = stack.tag
     stack.publish(pipeline_env_var)
+    stack.add_metadata_to_run({"docker":{"name":stack.tag}})
 
     # Add additional views for pipeline env var
     # that isn't published
-    pipeline_env_var["DOCKER_BUILD_DIR"] = "/var/tmp/docker/build"
-    pipeline_env_var["DESTDIR"] = "/var/tmp/docker/build"
-    pipeline_env_var["TARBALL_DIR"] = "/usr/src/tarballs"
     docker_env_file = "/var/tmp/docker/build/.env".format(stack.dockerfile)
-    pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
     pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
+    pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
     stack.add_host_env_vars_to_run(pipeline_env_var)
+
+    # Add cluster vars
+    env_ref = "{} hostname:{}".format(stack.base_env,stack.docker_host)
+    cvar_name = stack.get_hash_object("{}.build.{}".format(stack.cluster,stack.docker_host))
+
+    input_args = {"type":"env"}
+    input_args["env_ref"] = env_ref
+    input_args["name"] = cvar_name
+
+    input_args["contents"] = {"DOCKER_BUILD_DIR":"/var/tmp/docker/build",
+                              "DESTDIR":"/var/tmp/docker/build",
+                              "TARBALL_DIR":"/usr/src/tarballs",
+                              "DOCKER_ENV_FILE":docker_env_file}
+
+    input_args["tags"] = [ "docker",
+                           "container",
+                           "ci",
+                           "build",
+                           "register",
+                           cvar_name,
+                           stack.docker_host ]
+
+    stack.add_cluster_envs(**input_args)
+
+    # Wait to complete on host
+    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
+
+    #docker_host_info = stack.check_resource(name=stack.docker_host,
+    #                                        resource_type="server",
+    #                                        must_exists=True)[0]
+    #input_args["contents"]["DOCKERHOST_PUBLIC_IP"] = docker_host_info["public_ip"]
+    #input_args["contents"]["DOCKERHOST_PRIVATE_IP"] = docker_host_info["private_ip"]
+    #input_args["track"] = stack.track
 
     # Disable parallelism
     stack.unset_parallel()
@@ -85,7 +116,12 @@ def run(stackargs):
     groups = 'local:::private::{} {}'.format(stack.repo_key_group,
                                              stack.build_groups)
 
+    # Associated cluster vars to hostgroups
+    cvar_entry_env='name:{}'.format(cvar_name)
+    stack.associate_cluster_env(groups=groups,entry=cvar_entry_env)
+
     # Execute orders on docker_host
+    #stack.add_group_orders(groups,hostname=stack.docker_host,unassign=True)
     human_description = 'Execute orders/tasks on hostname = "{}"'.format(stack.docker_host)
     default_values = {"groups":groups}
     default_values["hostname"] = stack.docker_host
@@ -145,4 +181,4 @@ def run(stackargs):
                              role=role,
                              default_values=default_values)
 
-    return stack.get_results()
+    return stack.get_results(stackargs.get("destroy_instance"))
