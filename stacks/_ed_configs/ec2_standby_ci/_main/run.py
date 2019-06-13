@@ -71,14 +71,14 @@ def run(stackargs):
 
     # Add additional views for pipeline env var
     # that isn't published
-    docker_env_file = "{}/.env".format(stack.dockerfile)
+    docker_env_file = "/var/tmp/docker/build/.env".format(stack.dockerfile)
     pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
     pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
     stack.add_host_env_vars_to_run(pipeline_env_var)
 
     # Add cluster vars
     env_ref = "{} hostname:{}".format(stack.base_env,stack.docker_host)
-    cvar_name = stack.tag
+    cvar_name = stack.get_hash_object("{}.build.{}".format(stack.cluster,stack.docker_host))
 
     input_args = {"type":"env"}
     input_args["env_ref"] = env_ref
@@ -89,7 +89,6 @@ def run(stackargs):
                               "TARBALL_DIR":"/usr/src/tarballs",
                               "DOCKER_ENV_FILE":docker_env_file}
 
-    input_args["contents"]["DOCKER_IMAGE"] = stack.docker_image
     input_args["tags"] = [ "docker",
                            "container",
                            "ci",
