@@ -9,7 +9,7 @@ class Main(newSchedStack):
         self.parse.add_required(key="repo_key_loc")
         self.parse.add_required(key="repo_url")
 
-        self.parse.add_required(key="dockerfile",default="Dockefile")
+        self.parse.add_required(key="dockerfile",default="Dockerfile")
         self.parse.add_required(key="docker_repo")
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
         self.parse.add_required(key="docker_host_size",default="t2.micro")
