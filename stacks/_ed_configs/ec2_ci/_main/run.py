@@ -13,7 +13,6 @@ class Main(newSchedStack):
         self.parse.add_required(key="docker_repo")
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
         self.parse.add_required(key="docker_host_size",default="t2.micro")
-
         self.parse.add_required(key="config_env",default="private")
         self.parse.add_required(key="ci_method",default="standby")
 

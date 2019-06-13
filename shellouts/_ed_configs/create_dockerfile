@@ -26,6 +26,7 @@ def run_cmd(cmd,exit_error=False):
 
     print 'FAILED: executing cmd "{}" failed'.format(cmd)
     print "exitcode {}".format(exitcode)
+
     if exit_error: exit(exitcode)
     return False
 
