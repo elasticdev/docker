@@ -84,16 +84,16 @@ def run(stackargs):
     # Disable parallelism
     stack.unset_parallel()
 
-    # Sleep to set reference point
-    time_increment = 1
-    human_description = "Sleeping for {}".format(time_increment)
+    ## Sleep to set reference point
+    #time_increment = 1
+    #human_description = "Sleeping for {}".format(time_increment)
 
-    cmd = "sleep {0}".format(time_increment)
-    stack.add_external_cmd(cmd=cmd,
-                           order_type="sleep::shellout",
-                           human_description=human_description,
-                           display=True,
-                           role="external/cli/execute")
+    #cmd = "sleep {0}".format(time_increment)
+    #stack.add_external_cmd(cmd=cmd,
+    #                       order_type="sleep::shellout",
+    #                       human_description=human_description,
+    #                       display=True,
+    #                       role="external/cli/execute")
 
     # Add repo key group to list of groups
     groups = 'local:::private::{} {}'.format(stack.repo_key_group,
