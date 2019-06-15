@@ -8,12 +8,14 @@ def run(stackargs):
     stack.parse.add_required(key="commit_hash")
     stack.parse.add_required(key="repo_url")
     stack.parse.add_required(key="commit_info")
+    stack.parse.add_required(key="docker_repo")
     stack.parse.add_required(key="repo_key_group")
     stack.parse.add_required(key="docker_image")
     stack.parse.add_required(key="dockerfile",default="Dockerfile")
     stack.parse.add_required(key="tag",default="null")
     stack.parse.add_required(key="docker_host_size",default="t2.micro")
     stack.parse.add_required(key="docker_host_disksize",default=30)
+    stack.parse.add_required(key="aws_default_region",default="us-east-1")
 
     # The base environment variables used to build the docker container
     stack.parse.add_required(key="base_env",default="elasticdev:::docker::build")
@@ -32,6 +34,7 @@ def run(stackargs):
     stack.add_substack('elasticdev:::run_commit_info')
     stack.add_substack('elasticdev:::ec2_docker_host')
     stack.add_substack('elasticdev:::wrapper_add_hostgroup')
+    stack.add_substack('elasticdev:::aws::ecr_repo')
 
     # init the stack namespace
     stack.init_variables()
@@ -126,6 +129,20 @@ def run(stackargs):
     # Wait to complete on host
     stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
 
+    docker_repo = stack.check_resource(name=stack.docker_repo,
+                                       resource_type="ecr_repo",
+                                       provider="aws")
+
+    # create repo is not exists on aws
+    if not docker_repo:
+        default_values = {"name":stack.docker_repo}
+        default_values["aws_default_region"] = stack.aws_default_region
+        inputargs = {"default_values":default_values}
+        inputargs["automation_phase"] = "infrastructure"
+        inputargs["human_description"] = "Creates an AWS ecr repo {}".format(stack.name)
+        stack.ecr_repo.insert(display=None,**inputargs)
+
+    #input_args["contents"]["DOCKERHOST_PUBLIC_IP"] = docker_host_info["public_ip"]
     #docker_host_info = stack.check_resource(name=stack.docker_host,
     #                                        resource_type="server",
     #                                        must_exists=True)[0]

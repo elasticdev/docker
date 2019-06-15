@@ -9,6 +9,7 @@ class Main(newSchedStack):
         self.parse.add_required(key="repo_key_loc")
         self.parse.add_required(key="repo_url")
 
+        self.parse.add_required(key="aws_default_region",default="us-east-1")
         self.parse.add_required(key="dockerfile",default="Dockerfile")
         self.parse.add_required(key="docker_repo")
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
@@ -73,6 +74,7 @@ class Main(newSchedStack):
         default_values["repo_key_loc"] = self.repo_key_loc
         default_values["commit_hash"] = self.commit_hash
         default_values["docker_repo"] = self.docker_repo
+        default_values["aws_default_repo"] = self.aws_default_repo
 
         if self.ci_method == "ondemand": 
             default_values["docker_host_size"] = self.docker_host_size

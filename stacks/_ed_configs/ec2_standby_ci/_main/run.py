@@ -33,6 +33,7 @@ def run(stackargs):
     # Add substacks
     stack.add_substack('elasticdev:::run_commit_info')
     stack.add_substack('elasticdev:::wrapper_add_hostgroup')
+    stack.add_substack('elasticdev:::ecr_repo')
 
     # init the stack namespace
     stack.init_variables()
@@ -83,6 +84,20 @@ def run(stackargs):
 
     # Disable parallelism
     stack.unset_parallel()
+
+    ## Check if ECR repo exists for docker images
+    #docker_repo = stack.check_resource(name=stack.docker_repo,
+    #                                   resource_type="ecr_repo",
+    #                                   provider="aws")
+  
+    ## create repo is not exists on aws
+    #if not docker_repo:
+    #    default_values = {"name":stack.docker_repo}
+    #    default_values["aws_default_region"] = stack.aws_default_region
+    #    inputargs = {"default_values":default_values}
+    #    inputargs["automation_phase"] = "infrastructure"
+    #    inputargs["human_description"] = "Creates an AWS ecr repo {}".format(stack.name)
+    #    stack.ecr_repo.insert(display=None,**inputargs)
 
     ## Sleep to set reference point
     #time_increment = 1
