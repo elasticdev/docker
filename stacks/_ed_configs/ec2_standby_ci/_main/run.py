@@ -29,7 +29,7 @@ def run(stackargs):
     stack.parse.add_optional(key="config_env",default="private")
 
     # Add hostgroups
-    stack.add_hostgroups("elasticdev:::docker::create_container elasticdev:::docker::push_container","build_groups")
+    stack.add_hostgroups("elasticdev:::docker::ecs_create_push_image","build_groups")
 
     # Add substacks
     stack.add_substack('elasticdev:::run_commit_info')
