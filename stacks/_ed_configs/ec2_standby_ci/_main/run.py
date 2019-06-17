@@ -95,8 +95,8 @@ def run(stackargs):
 
     stack.execute_shellout(shelloutconfig="elasticdev:::aws::ecr_login",
                            human_description="human_description",
-                           insert_env_vars='["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]',
-                           env_vars='{"METHOD":"create","AWS_DEFAULT_REGION":"{}"}'.format(stack.aws_default_region),
+                           insert_env_vars=json.dumps(["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]),
+                           env_vars=json.dumps({"METHOD":"create","AWS_DEFAULT_REGION":stack.aws_default_region}),
                            output_to_json=None,
                            insert_to_run_var="ECR_LOGIN",
                            run_key="EnvVars",
