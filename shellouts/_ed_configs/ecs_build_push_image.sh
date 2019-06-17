@@ -13,15 +13,15 @@ docker build -t $REPOSITORY_URI . || exit 1
 echo "Login to repository $REPOSITORY_URI"
 $ECR_LOGIN || exit 1
 
-export IMAGE_ID=$(docker images -q ${REPOSITORY_URI})
-
 echo "Pushing latest image $IMAGE_ID to repository $REPOSITORY_URI"
 docker push $REPOSITORY_URI || exit 1
+
+export IMAGE_ID=$(docker images -q ${REPOSITORY_URI})
 
 docker tag $IMAGE_ID $DOCKER_REPO_TAG || exit 1
 
 echo "Pushing latest image $IMAGE_ID with tag $DOCKER_REPO_TAG to repository $REPOSITORY_URI"
-docker push $DOCKER_REPO_TAG
+docker push $DOCKER_REPO_TAG || exit 1
 
 cd -
 
