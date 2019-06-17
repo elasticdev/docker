@@ -74,7 +74,7 @@ class Main(newSchedStack):
         default_values["repo_key_loc"] = self.repo_key_loc
         default_values["commit_hash"] = self.commit_hash
         default_values["docker_repo"] = self.docker_repo
-        default_values["aws_default_repo"] = self.aws_default_repo
+        default_values["aws_default_region"] = self.aws_default_region
 
         if self.ci_method == "ondemand": 
             default_values["docker_host_size"] = self.docker_host_size

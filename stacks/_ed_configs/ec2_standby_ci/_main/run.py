@@ -15,6 +15,7 @@ def run(stackargs):
     stack.parse.add_required(key="docker_build_dir",default="/var/tmp/docker/build")
     stack.parse.add_required(key="destdir",default="/var/tmp/docker/build")
     stack.parse.add_required(key="tarball_dir",default="/usr/src/tarballs")
+    stack.parse.add_required(key="aws_default_region",default="us-east-1")
     stack.parse.add_required(key="tag",default="null")
 
     # The base environment variables used to build the docker container
@@ -52,14 +53,16 @@ def run(stackargs):
         stack.logger.error(msg)
         stack.ehandle.NeedRtInput(message=msg)
 
+    # Check if ECR repo exists for docker images
+    docker_repo = stack.check_resource(name=stack.docker_repo,
+                                       resource_type="ecr_repo",
+                                       provider="aws",
+                                       must_exists=True)[0]
+
+    ## Sleep to set reference point
+    #time_increment = 1
     # Set parallel
     stack.set_parallel()
-
-    # We add EnvVars for the Run only
-    pipeline_env_var = {"COMMIT_HASH":stack.commit_hash}
-    pipeline_env_var["REPO_BRANCH"] = stack.repo_branch
-    pipeline_env_var["REPO_URL"] = stack.repo_url
-    stack.add_host_env_vars_to_run(pipeline_env_var)
 
     # Publish commit_info
     default_values = {"commit_info":stack.commit_info}
@@ -75,40 +78,32 @@ def run(stackargs):
 
     # Add additional views for pipeline env var
     # that isn't published
+    # We add EnvVars for the Run only
+    pipeline_env_var["COMMIT_HASH"] = stack.commit_hash
+    pipeline_env_var["REPO_BRANCH"] = stack.repo_branch
+    pipeline_env_var["REPO_URL"] = stack.repo_url
     pipeline_env_var["DOCKER_BUILD_DIR"] = stack.docker_build_dir
     pipeline_env_var["DESTDIR"] = stack.destdir
     pipeline_env_var["TARBALL_DIR"] = stack.tarball_dir
     pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
+    pipeline_env_var["REPOSITORY_URI"] = docker_repo["repository_uri"]
     if stack.docker_env_file: pipeline_env_var["DOCKER_ENV_FILE"] = stack.docker_env_file
     stack.add_host_env_vars_to_run(pipeline_env_var)
 
+    # Getting ecr login
+    human_description = "Getting ECR_LOGIN for pushing image"
+
+    stack.execute_shellout(shelloutconfig="elasticdev:::aws::ecr_login",
+                           human_description="human_description",
+                           insert_env_vars='["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]',
+                           env_vars='{"METHOD":"create","AWS_DEFAULT_REGION":"{}"}'.format(stack.aws_default_region),
+                           output_to_json=None,
+                           insert_to_run_var="ECR_LOGIN",
+                           run_key="EnvVars",
+                           display=True)
+
     # Disable parallelism
     stack.unset_parallel()
-
-    ## Check if ECR repo exists for docker images
-    #docker_repo = stack.check_resource(name=stack.docker_repo,
-    #                                   resource_type="ecr_repo",
-    #                                   provider="aws")
-  
-    ## create repo is not exists on aws
-    #if not docker_repo:
-    #    default_values = {"name":stack.docker_repo}
-    #    default_values["aws_default_region"] = stack.aws_default_region
-    #    inputargs = {"default_values":default_values}
-    #    inputargs["automation_phase"] = "infrastructure"
-    #    inputargs["human_description"] = "Creates an AWS ecr repo {}".format(stack.name)
-    #    stack.ecr_repo.insert(display=None,**inputargs)
-
-    ## Sleep to set reference point
-    #time_increment = 1
-    #human_description = "Sleeping for {}".format(time_increment)
-
-    #cmd = "sleep {0}".format(time_increment)
-    #stack.add_external_cmd(cmd=cmd,
-    #                       order_type="sleep::shellout",
-    #                       human_description=human_description,
-    #                       display=True,
-    #                       role="external/cli/execute")
 
     # Add repo key group to list of groups
     groups = 'local:::private::{} {}'.format(stack.repo_key_group,
