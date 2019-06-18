@@ -18,7 +18,7 @@ echo "Pushing latest image $IMAGE_ID to repository $REPOSITORY_URI"
 echo "execute: docker push $REPOSITORY_URI"
 docker push $REPOSITORY_URI || exit 1
 
-export IMAGE_ID=$(docker images -q ${REPOSITORY_URI})
+export IMAGE_ID=$(docker images -q ${REPOSITORY_URI}| head -n 1)
 
 echo "execute: docker tag $IMAGE_ID $DOCKER_IMAGE_TAG"
 docker tag $IMAGE_ID $DOCKER_IMAGE_TAG || exit 1
