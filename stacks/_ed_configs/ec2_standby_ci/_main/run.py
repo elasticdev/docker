@@ -102,6 +102,8 @@ def run(stackargs):
                            run_key="EnvVars",
                            display=True)
 
+    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
+
     # Disable parallelism
     stack.unset_parallel()
 
