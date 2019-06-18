@@ -150,8 +150,27 @@ def run(stackargs):
     default_values["config_env"] = stack.config_env
     default_values["commit_hash"] = stack.commit_hash
     default_values["cluster"] = stack.cluster
-    #default_values["image"] = stack.docker_image
-    if repo_branch: default_values["branch"] = repo_branch
+    default_values["provider"] = "aws"
+    default_values["image"] = "{}:{}".format(docker_repo["repository_uri"],stack.tag)
+
+    _values = {"repo_name":docker_repo["repository_uri"].split("/")[-1]}
+    _values["repo_type"] = "ecr"
+    _values["product"] = "ecr"
+
+    default_values["values"] = _values
+
+    default_values["tags"] = [ "ecr",
+                               "aws",
+                               "docker",
+                               docker_repo["repository_uri"],
+                               stack.tag,
+                               stack.repo_url,
+                               stack.commit_hash,
+                               stack.aws_default_region ]
+
+    if repo_branch: 
+        default_values["branch"] = repo_branch
+        default_values["tags"].append(repo_branch)
 
     keys2pass = ["schedule_id", "job_id", "run_id", "job_instance_id"]
     stack.add_dict2dict(keys2pass,default_values,stackargs)
