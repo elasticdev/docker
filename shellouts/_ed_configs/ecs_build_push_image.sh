@@ -22,16 +22,3 @@ $ECR_LOGIN || exit 1
 echo "Pushing latest image $IMAGE_ID to repository $REPOSITORY_URI"
 echo "execute: docker push $REPOSITORY_URI"
 docker push $REPOSITORY_URI || exit 1
-
-cd -
-
-#export IMAGE_ID=$(docker images -q ${REPOSITORY_URI}| head -n 1)
-#
-#echo "execute: docker tag $IMAGE_ID $DOCKER_IMAGE_TAG"
-#docker tag $IMAGE_ID $DOCKER_IMAGE_TAG || exit 1
-#
-#echo "Pushing latest image $IMAGE_ID with tag $DOCKER_IMAGE_TAG to repository $REPOSITORY_URI"
-#echo "execute: docker push $DOCKER_IMAGE_TAG"
-#docker push $DOCKER_IMAGE_TAG || exit 1
-#cd -
-#docker tag build -t $DOCKER_REPO:$DOCKER_IMAGE_TAG . || exit 1
