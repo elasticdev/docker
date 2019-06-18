@@ -94,7 +94,7 @@ def run(stackargs):
     human_description = "Getting ECR_LOGIN for pushing image"
 
     stack.execute_shellout(shelloutconfig="elasticdev:::aws::ecr_login",
-                           human_description="human_description",
+                           human_description='executing shelloutconfig "{}"'.format("ecr_login"),
                            insert_env_vars=json.dumps(["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]),
                            env_vars=json.dumps({"METHOD":"get","AWS_DEFAULT_REGION":stack.aws_default_region}),
                            output_to_json=None,
