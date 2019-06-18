@@ -13,13 +13,13 @@ class Main(newSchedStack):
         self.parse.add_required(key="dockerfile",default="Dockerfile")
         self.parse.add_required(key="docker_repo")
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
-        self.parse.add_required(key="docker_host_size",default="t2.micro")
         self.parse.add_required(key="config_env",default="private")
         self.parse.add_required(key="ci_method",default="standby")
+        #self.parse.add_required(key="docker_host_size",default="t2.micro")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
-        self.stack.add_substack("elasticdev:::docker::ec2_ondemand_ci")
         self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
+        #self.stack.add_substack("elasticdev:::docker::ec2_ondemand_ci")
 
         self.stack.init_substacks()
 
@@ -39,17 +39,9 @@ class Main(newSchedStack):
         inputargs["default_values"] = {"commit_info":self.commit_info}
         return self.stack.run_commit_info.insert(display=True,**inputargs)
 
-    def set_chk_registerdocker_attr(self):
-
-        # Docker Image Name and Repo
-        if self.docker_tag_method == "commit_hash":
-            self.image_tag = self.commit_hash
-        else:
-            self.image_tag = self.stack.get_random_string()
-
     def run_registerdocker(self):
 
-        self.parse.add_required(key="docker_host",default="null")
+        self.parse.add_required(key="docker_host")
         self.parse.add_required(key="repo_url")
         self.init_variables()
 
@@ -57,17 +49,16 @@ class Main(newSchedStack):
         # we don't put this in the parsing arguments requested 
         # since it is retrieved from the "run"
         self.set_commit_info()
-        self.set_chk_registerdocker_attr()
 
-        if not self.docker_host: 
-            if self.commit_hash:
-                self.docker_host = "{}-{}".format(self.commit_hash,self.stack.get_random_string(size=3))
-            else:
-                self.docker_host = self.get_random(size=10)
+        #if not self.docker_host: 
+        #    if self.commit_hash:
+        #        self.docker_host = "{}-{}".format(self.commit_hash,self.stack.get_random_string(size=3))
+        #    else:
+        #        self.docker_host = self.get_random(size=10)
 
         default_values = {"docker_repo":self.docker_repo}
         default_values["repo_key_group"] = self.repo_key_group
-        default_values["tag"] = self.image_tag
+        default_values["tag"] = self.commit_hash
         default_values["config_env"] = self.config_env
         default_values["branch"] = self.repo_branch
         default_values["repo_url"] = self.repo_url
@@ -76,8 +67,8 @@ class Main(newSchedStack):
         default_values["docker_repo"] = self.docker_repo
         default_values["aws_default_region"] = self.aws_default_region
 
-        if self.ci_method == "ondemand": 
-            default_values["docker_host_size"] = self.docker_host_size
+        #if self.ci_method == "ondemand": 
+        #    default_values["docker_host_size"] = self.docker_host_size
 
         if hasattr(self,"commit_info"): default_values["commit_info"] = self.commit_info
 
@@ -91,7 +82,7 @@ class Main(newSchedStack):
         inputargs["automation_phase"] = "continuous_delivery"
         inputargs["human_description"] = 'Building docker container for commit_hash "{}"'.format(self.commit_hash)
 
-        if self.ci_method == "ondemand": return self.stack.ec2_ondemand_ci.insert(display=True,**inputargs)
+        #if self.ci_method == "ondemand": return self.stack.ec2_ondemand_ci.insert(display=True,**inputargs)
         if self.ci_method == "standby": return self.stack.ec2_standby_ci.insert(display=True,**inputargs)
 
     def run(self):
