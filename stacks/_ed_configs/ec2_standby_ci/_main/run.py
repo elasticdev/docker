@@ -155,6 +155,9 @@ def run(stackargs):
     default_values["provider"] = "aws"
     default_values["image"] = "{}:{}".format(docker_repo["repository_uri"],stack.tag)
 
+    # We make the name of the image the same as the commit_hash
+    default_values["name"] = stack.commit_hash
+
     _values = {"repo_name":docker_repo["repository_uri"].split("/")[-1]}
     _values["repo_type"] = "ecr"
     _values["product"] = "ecr"
