@@ -37,7 +37,7 @@ def run(stackargs):
                      "user",
                      "timeout",
                      "security_group",
-                     "region"]
+                     "aws_default_region"]
 
     default_values = {"size":"t2.medium"}
     default_values["disksize"] = 100
