@@ -135,7 +135,6 @@ def run(stackargs):
                   "repo_url" ]
 
     image_metadata = stack.add_dict2dict(keys2pass,{},stack.commit_info)
-    image_metadata["commit"] = stack.commit_info
 
     commit_url = stack.commit_info.get("url")
     if commit_url: image_metadata["commit_url"] = commit_url
@@ -146,8 +145,8 @@ def run(stackargs):
     repo_branch = stack.commit_info.get("branch")
     if repo_branch: image_metadata["repo_branch"] = repo_branch
 
-    # Parse commit_info
     default_values = {"image_metadata":image_metadata}
+    default_values["commit"] = stack.commit_info
     default_values["itype"] = "docker"
     default_values["repo_url"] = stack.repo_url
     default_values["config_env"] = stack.config_env
