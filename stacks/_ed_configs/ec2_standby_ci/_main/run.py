@@ -134,7 +134,9 @@ def run(stackargs):
                   "authored_date",
                   "repo_url" ]
 
-    image_metadata = stack.add_dict2dict(keys2pass,{},stack.commit_info)
+    # We need the entire commit info for the SaaS API
+    image_metadata = stack.commit_info
+    stack.add_dict2dict(keys2pass,image_metadata,stack.commit_info)
 
     commit_url = stack.commit_info.get("url")
     if commit_url: image_metadata["commit_url"] = commit_url
