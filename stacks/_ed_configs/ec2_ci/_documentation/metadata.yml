@@ -1,4 +1,4 @@
-desc: This stack preforms continuous integration through a dockerhost on AWS - ec2.  It responds to webhooks and builds code accordingly.
+desc: Preforms continuous integration with AWS/ec2. 
 release: 0.0.1
 categories: 
    - ci
