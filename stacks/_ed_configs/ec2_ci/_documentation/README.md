@@ -22,6 +22,7 @@
 **Sample entry:**
 
 ```
+
 build:
   ci_example:
     dependencies: 
@@ -34,12 +35,5 @@ build:
       repo_branch: master
       triggered_branches:
         - master
+
 ```
-
-
-
-
-
-
-
-
