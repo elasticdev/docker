@@ -110,6 +110,17 @@ class Main(newSchedStack):
         
         #The order of delete instances
         delete_instsuffix = [ "updatecode", "registerdocker" ]
-        self.stack.schedule_on_delete(parallel=delete_instsuffix)
+
+        # We don't destroy the registry when we delete the schedule
+        keep_resources = [ {"provider":"aws","resource_type":"ecr"} ]
+        destroy_resources = [ {"provider":"ec2","resource_type":"server"} ]
+
+        self.stack.delete_sched(parallel=delete_instsuffix,
+                                destroy_resources=destroy_resources,
+                                keep_resources=keep_resources)
+
+                                # ref 466328850045jjfhgndygsdxw
+                                # Add custom delete stack here for resources
+                                # stack=stack
 
         return self.stack.schedules
