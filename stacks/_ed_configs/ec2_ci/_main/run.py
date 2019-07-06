@@ -84,7 +84,7 @@ class Main(newSchedStack):
 
     def schedule(self):
 
-        sched = self.stack.new_schedule()
+        sched = self.stack.new_sched()
         sched.job = "updatecode"
         sched.archive.timeout = 300
         sched.archive.timewait = 60
@@ -97,7 +97,7 @@ class Main(newSchedStack):
         sched.trigger = [ "registerdocker 2" ]
         self.stack.add_sched(sched)
 
-        sched = self.stack.new_schedule()
+        sched = self.stack.new_sched()
         sched.job = "registerdocker"
         sched.archive.timeout = 2700
         sched.archive.timewait = 120
@@ -108,19 +108,21 @@ class Main(newSchedStack):
         sched.human_description = "Building docker container with code"
         self.stack.add_sched(sched)
         
-        #The order of delete instances
-        delete_instsuffix = [ "updatecode", "registerdocker" ]
+        # ref 3638623542sdafhlhs
+        ## delete_sched is no longer used, but will be deleted by the saas
+        ## The order of delete instances
+        #delete_instsuffix = [ "updatecode", "registerdocker" ]
 
-        # We don't destroy the registry when we delete the schedule
-        keep_resources = [ {"provider":"aws","resource_type":"ecr"} ]
-        destroy_resources = [ {"provider":"ec2","resource_type":"server"} ]
+        ## We don't destroy the registry when we delete the schedule
+        #keep_resources = [ {"provider":"aws","resource_type":"ecr"} ]
+        #destroy_resources = [ {"provider":"ec2","resource_type":"server"} ]
 
-        self.stack.delete_sched(parallel=delete_instsuffix,
-                                destroy_resources=destroy_resources,
-                                keep_resources=keep_resources)
+        #self.stack.delete_sched(parallel=delete_instsuffix,
+        #                        destroy_resources=destroy_resources,
+        #                        keep_resources=keep_resources)
 
-                                # ref 466328850045jjfhgndygsdxw
-                                # Add custom delete stack here for resources
-                                # stack=stack
+        #                        # ref 466328850045jjfhgndygsdxw
+        #                        # Add custom delete stack here for resources
+        #                        # stack=stack
 
         return self.stack.schedules
