@@ -3,6 +3,7 @@
   - This stack preforms continuous integration through a dockerhost on AWS - ec2.  It responds to webhooks and builds code accordingly.
 
 **Infrastructure**
+
   - expects a dockerhost be available to be used for builds
   - expects ec2 ecr to be created
 
@@ -14,6 +15,7 @@
 | repo_url           | the repository to build code from      | string   |  None         |
 
 **Optional**
+
 | argument           | description                            | var type | default      |
 | ------------------ | ---------------------------------------| -------- | ------------ |
 | triggered_branches | branches to trigger builds from        | string   | master       |
@@ -22,7 +24,6 @@
 **Sample entry:**
 
 ```
-
 build:
   ci_example:
     dependencies: 
@@ -37,8 +38,3 @@ build:
         - master
 
 ```
-
-
-
-
-
