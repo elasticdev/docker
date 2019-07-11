@@ -44,7 +44,7 @@ def run(stackargs):
     default_values["disksize"] = 100
     default_values["hostname"] = stack.hostname
     default_values["key"] = stack.key
-    default_values["image_ref"] = "github_13456777:::public::ubuntu.{}-docker".format(stack.os_version)
+    default_values["image_ref"] = "elasticdev:::public::ubuntu.{}-docker".format(stack.os_version)
     default_values["ip_key"] = "private_ip"
     default_values["tags"] = "docker_host docker container single_host {} {} {}".format(stack.hostname,stack.os_version,"dev")
     if stack.sg: default_values["sg"] = stack.sg
