@@ -107,6 +107,18 @@ def run(stackargs):
     # Disable parallelism
     stack.unset_parallel()
 
+    # Check resource
+    resource_info = stack.get_resource(name=stack.dockerhost,
+                                       resource_type="server",
+                                       must_exists=True)[0]
+
+    if resource_info.get("status") != "running" or resource_info.get("status") == "stopped":
+        # Start the server when doing a build
+        stack.remove_modify(resource_type="server",
+                            provider="ec2",
+                            name=stack.dockerhost,
+                            method="start")
+
     # Add repo key group to list of groups
     groups = 'local:::private::{} {}'.format(stack.repo_key_group,
                                              stack.build_groups)
@@ -123,10 +135,7 @@ def run(stackargs):
     # Wait to complete on host
     stack.wait_hosts_tag(hostname=stack.docker_host)
 
-    cmd = "image register"
-    order_type = "register-docker::api"
-    role = "image/register"
-
+    # Register image
     keys2pass = [ "author",
                   "message",
                   "commit_hash",
@@ -145,53 +154,53 @@ def run(stackargs):
     repo_branch = stack.commit_info.get("branch")
     if repo_branch: image_metadata["repo_branch"] = repo_branch
 
-    default_values = {"image_metadata":image_metadata}
-    default_values["commit"] = stack.commit_info
-    default_values["itype"] = "docker"
-    default_values["repo_url"] = stack.repo_url
-    default_values["config_env"] = stack.config_env
-    default_values["commit_hash"] = stack.commit_hash
-    default_values["cluster"] = stack.cluster
-    default_values["provider"] = "aws"
-    default_values["image"] = "{}:{}".format(docker_repo["repository_uri"],stack.tag)
+    ikwargs = {"image_metadata":image_metadata}
+    ikwargs["commit"] = stack.commit_info
+    ikwargs["itype"] = "docker"
+    ikwargs["repo_url"] = stack.repo_url
+    ikwargs["config_env"] = stack.config_env
+    ikwargs["commit_hash"] = stack.commit_hash
+    ikwargs["cluster"] = stack.cluster
+    ikwargs["provider"] = "aws"
+    ikwargs["image"] = "{}:{}".format(docker_repo["repository_uri"],stack.tag)
 
     # We make the name of the image the same as the commit_hash
-    default_values["name"] = stack.commit_hash
+    ikwargs["name"] = stack.commit_hash
 
     _values = {"repo_name":docker_repo["repository_uri"].split("/")[-1]}
     _values["repo_type"] = "ecr"
     _values["product"] = "ecr"
 
-    default_values["values"] = _values
+    ikwargs["values"] = _values
 
-    default_values["tags"] = [ "ecr",
-                               "aws",
-                               "docker",
-                               docker_repo["repository_uri"],
-                               stack.tag,
-                               stack.repo_url,
-                               stack.commit_hash,
-                               stack.aws_default_region ]
+    ikwargs["tags"] = [ "ecr",
+                        "aws",
+                        "docker",
+                        docker_repo["repository_uri"],
+                        stack.tag,
+                        stack.repo_url,
+                        stack.commit_hash,
+                        stack.aws_default_region ]
 
     if repo_branch: 
-        default_values["branch"] = repo_branch
-        default_values["tags"].append(repo_branch)
-
-    keys2pass = ["schedule_id", "job_id", "run_id", "job_instance_id"]
-    stack.add_dict2dict(keys2pass,default_values,stackargs)
+        ikwargs["branch"] = repo_branch
+        ikwargs["tags"].append(repo_branch)
 
     human_description = "Records docker image"
-    long_description = "Records the docker image with repo_url = {}, branch = {}, commit_hash = {} to Jiffy DB".format(stack.repo_url,
-                                                                                                                       repo_branch,
-                                                                                                                       stack.commit_hash)
+    long_description = "Records the docker image with repo_url = {}, branch = {}, commit_hash = {} to DB".format(stack.repo_url,
+                                                                                                                 repo_branch,
+                                                                                                                 stack.commit_hash)
 
-    stack.insert_builtin_cmd(cmd,
-                             order_type=order_type,
-                             human_description=human_description,
-                             long_description=long_description,
-                             display=None,
-                             role=role,
-                             default_values=default_values)
+    stack.register_image(order_type="register-docker::api",
+                         human_description=human_description,
+                         long_description=long_description,
+                         display=None,
+                         **ikwargs)
 
     # Stop the server when done to save money
+    stack.remove_modify(resource_type="server",
+                        provider="ec2",
+                        name=stack.dockerhost,
+                        method="stop")
+
     return stack.get_results()
