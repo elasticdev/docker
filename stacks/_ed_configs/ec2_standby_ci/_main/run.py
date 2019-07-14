@@ -180,7 +180,7 @@ def run(stackargs):
     keys2pass = ["schedule_id", "job_id", "run_id", "job_instance_id"]
     stack.add_dict2dict(keys2pass,default_values,stackargs)
 
-    human_description = "Registers docker image"
+    human_description = "Records docker image"
     long_description = "Records the docker image with repo_url = {}, branch = {}, commit_hash = {} to Jiffy DB".format(stack.repo_url,
                                                                                                                        repo_branch,
                                                                                                                        stack.commit_hash)
@@ -193,4 +193,5 @@ def run(stackargs):
                              role=role,
                              default_values=default_values)
 
+    # Stop the server when done to save money
     return stack.get_results()

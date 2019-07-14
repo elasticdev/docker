@@ -64,6 +64,7 @@ def run(stackargs):
     stack.ec2_ubuntu.insert(**inputargs)
 
     #stack.wait_hosts_tag(tags=stack.hostname)
+
     # publish hostname
     #stack.publish({"docker_host":stack.hostname})
     #stack.add_metadata_to_run({"docker_host":stack.hostname},mkey="infrastructure")
