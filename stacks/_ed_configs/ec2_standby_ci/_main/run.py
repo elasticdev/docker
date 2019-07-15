@@ -22,7 +22,7 @@ def run(stackargs):
     stack.parse.add_required(key="base_env",default="elasticdev:::docker::build")
 
     # The docker host needs to be provided and ready to be used by this stack
-    stack.parse.add_required(key="docker_host")
+    stack.parse.add_required(key="docker_host",default="{}-docker_host".format(stackargs["cluster"]))
     stack.parse.add_required(key="sched_name",default="NoNone")
     stack.parse.add_required(key="repo_branch",default="master")
 
