@@ -108,7 +108,7 @@ def run(stackargs):
     stack.unset_parallel()
 
     # Check resource
-    resource_info = stack.get_resource(name=stack.dockerhost,
+    resource_info = stack.get_resource(name=stack.docker_host,
                                        resource_type="server",
                                        must_exists=True)[0]
 
@@ -116,7 +116,7 @@ def run(stackargs):
         # Start the server when doing a build
         stack.remove_modify(resource_type="server",
                             provider="ec2",
-                            name=stack.dockerhost,
+                            name=stack.docker_host,
                             method="start")
 
     # Add repo key group to list of groups
@@ -200,7 +200,7 @@ def run(stackargs):
     # Stop the server when done to save money
     stack.remove_modify(resource_type="server",
                         provider="ec2",
-                        name=stack.dockerhost,
+                        name=stack.docker_host,
                         method="stop")
 
     return stack.get_results()
