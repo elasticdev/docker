@@ -44,7 +44,7 @@ class Main(newSchedStack):
 
         # Set docker host accordingly
         if not self.docker_host:
-            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.cluster)  
+            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
 
         # This sets the commit info need to register the image
         # we don't put this in the parsing arguments requested 
