@@ -43,7 +43,7 @@ def run(stackargs):
 
     # Set docker host accordingly
     if not stack.docker_host:
-        stack.commit_info = stackargs["commit_info"] = "{}-docker_host".format(stack.cluster)  
+        stack.docker_host = stackargs["docker_host"] = "{}-docker_host".format(stack.cluster)  
 
     # Check and convert objects accordingly
     if not isinstance(stack.commit_info,dict): 
