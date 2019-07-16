@@ -118,10 +118,10 @@ def run(stackargs):
 
     if resource_info.get("status") != "running" or resource_info.get("status") == "stopped":
         # Start the server when doing a build
-        stack.remove_modify(resource_type="server",
-                            provider="ec2",
-                            name=stack.docker_host,
-                            method="start")
+        stack.modify_resource(resource_type="server",
+                              provider="ec2",
+                              name=stack.docker_host,
+                              method="start")
 
     # Add repo key group to list of groups
     groups = 'local:::private::{} {}'.format(stack.repo_key_group,
@@ -202,9 +202,9 @@ def run(stackargs):
                          **ikwargs)
 
     # Stop the server when done to save money
-    stack.remove_modify(resource_type="server",
-                        provider="ec2",
-                        name=stack.docker_host,
-                        method="stop")
+    stack.modify_resource(resource_type="server",
+                          provider="ec2",
+                          name=stack.docker_host,
+                          method="stop")
 
     return stack.get_results()
