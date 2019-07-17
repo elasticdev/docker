@@ -119,6 +119,7 @@ def run(stackargs):
     if resource_info.get("status") != "running" or resource_info.get("status") == "stopped":
         # Start the server when doing a build
         stack.modify_resource(resource_type="server",
+                              human_description='Starting resource server hostname "{}"'.format(stack.docker_host),
                               provider="ec2",
                               name=stack.docker_host,
                               method="start")
@@ -203,6 +204,7 @@ def run(stackargs):
 
     # Stop the server when done to save money
     stack.modify_resource(resource_type="server",
+                          human_description='Stopping resource server hostname "{}"'.format(stack.docker_host),
                           provider="ec2",
                           name=stack.docker_host,
                           method="stop")

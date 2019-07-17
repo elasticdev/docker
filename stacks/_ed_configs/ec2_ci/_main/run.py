@@ -20,7 +20,7 @@ class Main(newSchedStack):
 
         self.stack.init_substacks()
 
-    def run_updatecode(self):
+    def run_record_commit_info(self):
 
         self.parse.add_optional(key="commit_info",default="null")
         self.parse.add_optional(key="commit_hash",default="null")
@@ -79,7 +79,7 @@ class Main(newSchedStack):
     
         self.stack.unset_parallel()
         self.stack.add_job("registerdocker",instance_name="auto")
-        self.stack.add_job("updatecode",instance_name="auto")
+        self.stack.add_job("record_commit_info",instance_name="auto")
 
         # Evaluating Jobs and loads
         for run_job in self.stack.get_jobs(): eval(run_job)
@@ -89,7 +89,7 @@ class Main(newSchedStack):
     def schedule(self):
 
         sched = self.stack.new_sched()
-        sched.job = "updatecode"
+        sched.job = "record_commit_info"
         sched.archive.timeout = 300
         sched.archive.timewait = 60
         sched.archive.cleanup.instance = "clear"
@@ -115,7 +115,7 @@ class Main(newSchedStack):
         # ref 3638623542sdafhlhs
         ## delete_sched is no longer used, but will be deleted by the saas
         ## The order of delete instances
-        #delete_instsuffix = [ "updatecode", "registerdocker" ]
+        #delete_instsuffix = [ "record_commit_info", "registerdocker" ]
 
         ## We don't destroy the registry when we delete the schedule
         #keep_resources = [ {"provider":"aws","resource_type":"ecr"} ]
