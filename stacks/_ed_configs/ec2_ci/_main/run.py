@@ -6,19 +6,79 @@ class Main(newSchedStack):
 
         self.parse.add_required(key="repo_branch",default="dev")
         self.parse.add_required(key="repo_key_group")
-        self.parse.add_required(key="repo_key_loc")
         self.parse.add_required(key="repo_url")
+        #self.parse.add_required(key="repo_key_loc")
 
         self.parse.add_required(key="aws_default_region",default="us-east-1")
-        self.parse.add_required(key="dockerfile",default="Dockerfile")
+        self.parse.add_required(key="dockerfile_file",default="Dockerfile")
+        self.parse.add_required(key="dockerfile",default="null")
         self.parse.add_required(key="docker_repo")
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
         self.parse.add_required(key="config_env",default="private")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
         self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
+        self.stack.add_substack("elasticdev:::docker::docker_build")
+        self.stack.add_substack("elasticdev:::ed_core::empty_stack")
 
         self.stack.init_substacks()
+
+    def run_unit_test(self):
+
+        self.parse.add_required(key="dockerfile",default="null")
+        self.parse.add_required(key="docker_host",default="null")
+        self.parse.add_required(key="repo_url")
+        self.init_variables()
+
+        # If not test scripts, we just return and skip unit_tests
+        if not self.dockerfile_test:
+
+            inputargs = {"default_values":{}}
+            inputargs["automation_phase"] = "continuous_delivery"
+
+            description = 'No (uni-)tests to run'
+            inputargs["human_description"] = description
+            inputargs["default_values"]["human_description"] = description
+
+            inputargs["display_hash"] = self.stack.get_hash_object(inputargs)
+
+            return self.stack.empty_run.insert(display=True,**inputargs)
+
+        # Execute uni-tests
+        # Set docker host accordingly
+        if not self.docker_host:
+            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
+    
+        # This sets the commit info need to register the image
+        # we don't put this in the parsing arguments requested 
+        # since it is retrieved from the "run"
+        self.set_commit_info()
+    
+        default_values = {"commit_hash":self.commit_hash}
+        default_values["config_env"] = self.config_env
+        default_values["branch"] = self.repo_branch
+        default_values["repo_branch"] = self.repo_branch
+        default_values["repo_url"] = self.repo_url
+        default_values["repo_key_group"] = self.repo_key_group
+        #default_values["repo_key_loc"] = self.repo_key_loc
+        if hasattr(self,"commit_info"): default_values["commit_info"] = self.commit_info
+    
+        # revisit 34098732086501259
+        # currently, we placed the dockerfile right into
+        # run variables.  in the future, we may want to 
+        # separate this dockerfile (test) from dockerfile (build)
+        # not urgent right now, in this instance, they run in order
+        # from unit_test (dockerfile_test) to build (dockerfile)
+        overide_values = {"docker_host":self.docker_host}
+        overide_values["dockerfile"] = self.dockerfile_test
+    
+        inputargs = {"default_values":default_values,
+                     "overide_values":overide_values}
+    
+        inputargs["automation_phase"] = "continuous_delivery"
+        inputargs["human_description"] = 'Performing unit test with Dockerfile"{}"'.format(self.dockerfile)
+    
+        return self.stack.docker_build.insert(display=True,**inputargs)
 
     def run_record_commit_info(self):
 
@@ -56,8 +116,9 @@ class Main(newSchedStack):
         default_values["tag"] = self.commit_hash
         default_values["config_env"] = self.config_env
         default_values["branch"] = self.repo_branch
+        default_values["repo_branch"] = self.repo_branch
         default_values["repo_url"] = self.repo_url
-        default_values["repo_key_loc"] = self.repo_key_loc
+        #default_values["repo_key_loc"] = self.repo_key_loc
         default_values["commit_hash"] = self.commit_hash
         default_values["docker_repo"] = self.docker_repo
         default_values["aws_default_region"] = self.aws_default_region
@@ -78,8 +139,9 @@ class Main(newSchedStack):
     def run(self):
     
         self.stack.unset_parallel()
-        self.stack.add_job("registerdocker",instance_name="auto")
+        self.stack.add_job("unit_test",instance_name="auto")
         self.stack.add_job("record_commit_info",instance_name="auto")
+        self.stack.add_job("registerdocker",instance_name="auto")
 
         # Evaluating Jobs and loads
         for run_job in self.stack.get_jobs(): eval(run_job)
@@ -98,9 +160,23 @@ class Main(newSchedStack):
         sched.conditions.frequency = "wait_last_run 20"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Insert commit info into run"
-        sched.trigger = [ "registerdocker 2" ]
+        sched.trigger = [ "unit_test 1" ]
         self.stack.add_sched(sched)
 
+        sched = self.stack.new_schedule()
+        sched.job = "unit_test"
+        sched.archive.timeout = 2700
+        sched.archive.timewait = 120
+        sched.archive.cleanup.instance = "clear"
+        sched.failure.keep_resources = True
+        sched.conditions.frequency = "wait_last_run 60"
+        #Cannot have concurrency with a single docker host
+        sched.conditions.noncurrent = [ "registerdocker" ]
+        sched.automation_phase = "continuous_delivery"
+        sched.human_description = "Running unit_test for code"
+        sched.trigger = [ "registerdocker 1" ]
+        self.stack.add_sched(sched)
+        
         sched = self.stack.new_sched()
         sched.job = "registerdocker"
         sched.archive.timeout = 2700
@@ -111,22 +187,5 @@ class Main(newSchedStack):
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Building docker container with code"
         self.stack.add_sched(sched)
-        
-        # ref 3638623542sdafhlhs
-        ## delete_sched is no longer used, but will be deleted by the saas
-        ## The order of delete instances
-        #delete_instsuffix = [ "record_commit_info", "registerdocker" ]
-
-        ## We don't destroy the registry when we delete the schedule
-        #keep_resources = [ {"provider":"aws","resource_type":"ecr"} ]
-        #destroy_resources = [ {"provider":"ec2","resource_type":"server"} ]
-
-        #self.stack.delete_sched(parallel=delete_instsuffix,
-        #                        destroy_resources=destroy_resources,
-        #                        keep_resources=keep_resources)
-
-        #                        # ref 466328850045jjfhgndygsdxw
-        #                        # Add custom delete stack here for resources
-        #                        # stack=stack
 
         return self.stack.schedules

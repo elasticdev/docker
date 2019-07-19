@@ -1,0 +1,17 @@
+desc: The stack simply executes docker build on a specific directory
+release: 0.0.1
+categories: 
+   - ci
+   - continuous_delivery
+   - dev
+tags:
+   - ci
+   - build
+   - helper
+   - ubuntu
+   - ec2
+   - continuous_delivery
+   - short_stack
+   - dev
+   - ed_saas
+   - ed

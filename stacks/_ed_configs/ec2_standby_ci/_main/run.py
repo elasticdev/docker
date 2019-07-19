@@ -2,7 +2,6 @@ def run(stackargs):
 
     import json
 
-    # initiate stack 
     stack = newStack(stackargs)
 
     stack.parse.add_required(key="commit_hash")
