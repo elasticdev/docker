@@ -9,17 +9,15 @@
 
 **Required**
 
-| argument           | description                            | var type |  default      |
-| ------------------ | ---------------------------------------| -------- | ------------- |
-| docker_host        | name of the dockerhost                 | string   |  None         |
-| repo_url           | the repository to build code from      | string   |  None         |
+|| *argument*           || *description*                            || *var type* ||  *default*      ||
+|| docker_host        || name of the dockerhost                 || string   ||  None         ||
+|| repo_url           || the repository to build code from      || string   ||  None         ||
 
 **Optional**
 
-| argument           | description                            | var type | default      |
-| ------------------ | ---------------------------------------| -------- | ------------ |
-| triggered_branches | branches to trigger builds from        | string   | master       |
-| repo_branch        | branch to build from (array)           | array    | master       |
+|| *argument*           || *description*                            || *var type* ||  *default*      ||
+|| triggered_branches || branches to trigger builds from        || string   || master       ||
+|| repo_branch        || branch to build from (array)           || array    || master       ||
   
 **Sample entry:**
 
