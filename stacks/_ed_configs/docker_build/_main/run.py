@@ -23,15 +23,11 @@ def run(stackargs):
     # The docker host needs to be provided and ready to be used by this stack
     stack.parse.add_required(key="docker_host",default="null")
 
-    # init the variables before hostgroups
-    stack.init_variables()
-
-    # Add hostgroups
-    stack.add_hostgroups(stack.build_groups,"add_groups")
-
     # Add substacks
     stack.add_substack('elasticdev:::wrapper_add_hostgroup')
 
+    # init the variables before hostgroups
+    stack.init_variables()
     stack.init_substacks()
     stack.init_hostgroups()
 
@@ -65,7 +61,7 @@ def run(stackargs):
                               method="start")
 
     # Add repo key group to list of groups
-    groups = 'local:::private::{} {}'.format(stack.repo_key_group,stack.add_groups)
+    groups = 'local:::private::{} {}'.format(stack.repo_key_group,stack.build_groups)
 
     # Execute orders on docker_host
     human_description = 'Execute orders/tasks on hostname = "{}"'.format(stack.docker_host)
