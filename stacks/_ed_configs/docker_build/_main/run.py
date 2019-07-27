@@ -72,6 +72,8 @@ def run(stackargs):
     inputargs["human_description"] = human_description
     stack.wrapper_add_hostgroup.insert(display=True,**inputargs)
 
+    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
+
     # Stop the server when done to save money
     stack.modify_resource(resource_type="server",
                           human_description='Stopping resource server hostname "{}"'.format(stack.docker_host),
