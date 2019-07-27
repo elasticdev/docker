@@ -10,11 +10,13 @@ class Main(newSchedStack):
         #self.parse.add_required(key="repo_key_loc")
 
         self.parse.add_required(key="aws_default_region",default="us-east-1")
-        self.parse.add_required(key="dockerfile_file",default="Dockerfile")
         self.parse.add_required(key="dockerfile",default="null")
         self.parse.add_required(key="docker_repo")
         self.parse.add_required(key="docker_tag_method",default="commit_hash")
         self.parse.add_required(key="config_env",default="private")
+        self.parse.add_required(key="docker_host",default="null")
+
+        self.parse.add_optional(key="dockerfile_test",default="null")
 
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
         self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
@@ -25,8 +27,6 @@ class Main(newSchedStack):
 
     def run_unit_test(self):
 
-        self.parse.add_required(key="dockerfile",default="null")
-        self.parse.add_required(key="docker_host",default="null")
         self.parse.add_required(key="repo_url")
         self.init_variables()
 
@@ -76,7 +76,7 @@ class Main(newSchedStack):
                      "overide_values":overide_values}
     
         inputargs["automation_phase"] = "continuous_delivery"
-        inputargs["human_description"] = 'Performing unit test with Dockerfile"{}"'.format(self.dockerfile)
+        inputargs["human_description"] = 'Performing unit test with Dockerfile"{}"'.format(self.dockerfile_test)
     
         return self.stack.docker_build.insert(display=True,**inputargs)
 
@@ -98,7 +98,6 @@ class Main(newSchedStack):
 
     def run_registerdocker(self):
 
-        self.parse.add_required(key="docker_host",default="null")
         self.parse.add_required(key="repo_url")
         self.init_variables()
 
