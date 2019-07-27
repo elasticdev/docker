@@ -42,7 +42,7 @@ class Main(newSchedStack):
 
             inputargs["display_hash"] = self.stack.get_hash_object(inputargs)
 
-            return self.stack.empty_run.insert(display=True,**inputargs)
+            return self.stack.empty_stack.insert(display=True,**inputargs)
 
         # Execute uni-tests
         # Set docker host accordingly
