@@ -33,7 +33,7 @@ def run(stackargs):
     # Add substacks
     stack.add_substack('elasticdev:::run_commit_info')
     stack.add_substack('elasticdev:::ec2_docker_host')
-    stack.add_substack('elasticdev:::wrapper_add_hostgroup')
+    stack.add_substack('elasticdev:::add_groups2host')
     stack.add_substack('elasticdev:::aws::ecr_repo')
 
     # init the stack namespace
@@ -169,7 +169,7 @@ def run(stackargs):
     inputargs = {"default_values":default_values}
     inputargs["automation_phase"] = "continuous_delivery"
     inputargs["human_description"] = human_description
-    stack.wrapper_add_hostgroup.insert(display=True,**inputargs)
+    stack.add_groups2host.insert(display=True,**inputargs)
 
     # Wait to complete on host
     stack.wait_hosts_tag(hostname=stack.docker_host)

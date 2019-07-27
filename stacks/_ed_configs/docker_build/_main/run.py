@@ -24,7 +24,7 @@ def run(stackargs):
     stack.parse.add_required(key="docker_host",default="null")
 
     # Add substacks
-    stack.add_substack('elasticdev:::wrapper_add_hostgroup')
+    stack.add_substack('elasticdev:::add_groups2host')
 
     # init the variables before hostgroups
     stack.init_variables()
@@ -70,8 +70,7 @@ def run(stackargs):
     inputargs = {"default_values":default_values}
     inputargs["automation_phase"] = "continuous_delivery"
     inputargs["human_description"] = human_description
-    stack.wrapper_add_hostgroup.insert(display=True,**inputargs)
-
+    stack.add_groups2host.insert(display=True,**inputargs)
     stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
 
     # Stop the server when done to save money
