@@ -9,7 +9,7 @@ def run(stackargs):
     stack.parse.add_required(key="repo_url")
     stack.parse.add_required(key="repo_key_group")
 
-    stack.parse.add_required(key="build_groups",default="elasticdev:::docker::simple_build")
+    stack.parse.add_required(key="build_groups",default="elasticdev:::docker::docker_build")
     stack.parse.add_required(key="repo_branch",default="master")
     stack.parse.add_required(key="dockerfile",default="Dockerfile")
     stack.parse.add_required(key="docker_env_file",default="null")
