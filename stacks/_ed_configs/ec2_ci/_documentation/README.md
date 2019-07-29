@@ -9,9 +9,10 @@
 
 **Required**
 
-|| *argument*           || *description*                            || *var type* ||  *default*      ||
-|| docker_host        || name of the dockerhost                 || string   ||  None         ||
-|| repo_url           || the repository to build code from      || string   ||  None         ||
+| argument      | description                            | var type | default      |
+| ------------- | -------------------------------------- | -------- | ------------ |
+| docker_host   | name of the dockerhost                 | string   | None         |
+| repo_url      | the repository to build code from      | string   | None         |
 
 **Optional**
 
