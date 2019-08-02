@@ -80,7 +80,7 @@ class Main(newSchedStack):
     
         return self.stack.docker_build.insert(display=True,**inputargs)
 
-    def run_record_commit_info(self):
+    def run_record_commit(self):
 
         self.parse.add_optional(key="commit_info",default="null")
         self.parse.add_optional(key="commit_hash",default="null")
@@ -139,7 +139,7 @@ class Main(newSchedStack):
     
         self.stack.unset_parallel()
         self.stack.add_job("unit_test",instance_name="auto")
-        self.stack.add_job("record_commit_info",instance_name="auto")
+        self.stack.add_job("record_commit",instance_name="auto")
         self.stack.add_job("registerdocker",instance_name="auto")
 
         # Evaluating Jobs and loads
@@ -150,7 +150,7 @@ class Main(newSchedStack):
     def schedule(self):
 
         sched = self.stack.new_sched()
-        sched.job = "record_commit_info"
+        sched.job = "record_commit"
         sched.archive.timeout = 300
         sched.archive.timewait = 60
         sched.archive.cleanup.instance = "clear"
