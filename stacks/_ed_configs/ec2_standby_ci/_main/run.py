@@ -201,12 +201,5 @@ def run(stackargs):
                          display=None,
                          **ikwargs)
 
-    # Stop the server when done to save money
-    stack.modify_resource(resource_type="server",
-                          human_description='Stopping resource server hostname "{}"'.format(stack.docker_host),
-                          provider="ec2",
-                          name=stack.docker_host,
-                          method="stop")
-
     return stack.get_results()
 

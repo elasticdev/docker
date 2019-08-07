@@ -22,8 +22,13 @@ class Main(newSchedStack):
         self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
         self.stack.add_substack("elasticdev:::docker::docker_build")
         self.stack.add_substack("elasticdev:::ed_core::empty_stack")
+        self.stack.add_substack('elasticdev:::ec2_server_stop')
 
         self.stack.init_substacks()
+
+        # Set docker host accordingly
+        if not self.docker_host:
+            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
 
     def run_unit_test(self):
 
@@ -43,11 +48,6 @@ class Main(newSchedStack):
             inputargs["display_hash"] = self.stack.get_hash_object(inputargs)
 
             return self.stack.empty_stack.insert(display=True,**inputargs)
-
-        # Execute uni-tests
-        # Set docker host accordingly
-        if not self.docker_host:
-            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
     
         # This sets the commit info need to register the image
         # we don't put this in the parsing arguments requested 
@@ -96,14 +96,21 @@ class Main(newSchedStack):
         inputargs["default_values"] = {"commit_info":self.commit_info}
         return self.stack.run_commit_info.insert(display=True,**inputargs)
 
+    def run_stop_server(self):
+
+        self.init_variables()
+
+        default_values = {"hostname":self.docker_host}
+        inputargs = {"default_values":default_values}
+        inputargs["automation_phase"] = "continuous_delivery"
+        inputargs["human_description"] = 'Stopping docker_host "{}"'.format(self.docker_host)
+
+        return self.stack.ec2_server_stop.insert(display=True,**inputargs)
+
     def run_registerdocker(self):
 
         self.parse.add_required(key="repo_url")
         self.init_variables()
-
-        # Set docker host accordingly
-        if not self.docker_host:
-            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
 
         # This sets the commit info need to register the image
         # we don't put this in the parsing arguments requested 
@@ -185,6 +192,18 @@ class Main(newSchedStack):
         sched.conditions.frequency = "wait_last_run 60"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Building docker container with code"
+        sched.trigger = [ "stop_server 1" ]
+        self.stack.add_sched(sched)
+
+        sched = self.stack.new_sched()
+        sched.job = "stop_server"
+        sched.archive.timeout = 300
+        sched.archive.timewait = 10
+        sched.archive.cleanup.instance = "clear"
+        sched.failure.keep_resources = True
+        sched.conditions.frequency = "wait_last_run 10"
+        sched.automation_phase = "continuous_delivery"
+        sched.human_description = "Stopping docker host"
         self.stack.add_sched(sched)
 
         return self.stack.schedules
