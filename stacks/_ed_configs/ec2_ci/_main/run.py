@@ -174,7 +174,7 @@ class Main(newSchedStack):
         sched.conditions.frequency = "wait_last_run 20"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Insert commit info into run"
-        sched.triggers.success = [ "unit_test" ]
+        sched.triggers = [ "unit_test" ]
         #sched.triggers.success = [ "unit_test" ]
         self.stack.add_sched(sched)
 
