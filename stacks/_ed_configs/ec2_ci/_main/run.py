@@ -174,7 +174,8 @@ class Main(newSchedStack):
         sched.conditions.frequency = "wait_last_run 20"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Insert commit info into run"
-        sched.triggers.success = [ "unit_test" ]
+        sched.trigger = [ "unit_test 1" ]
+        #sched.triggers.success = [ "unit_test" ]
         self.stack.add_sched(sched)
 
         sched = self.stack.new_schedule()
@@ -188,8 +189,9 @@ class Main(newSchedStack):
         sched.conditions.noncurrent = [ "registerdocker" ]
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Running unit_test for code"
-        sched.triggers.success = [ "registerdocker" ]
-        sched.triggers.fail = [ "stop_server" ]
+        sched.trigger = [ "registerdocker 1" ]
+        #sched.triggers.success = [ "registerdocker" ]
+        #sched.triggers.fail = [ "stop_server" ]
         self.stack.add_sched(sched)
         
         sched = self.stack.new_sched()
@@ -201,8 +203,9 @@ class Main(newSchedStack):
         sched.conditions.frequency = "wait_last_run 60"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Building docker container with code"
-        sched.triggers.success = [ "stop_server" ]
-        sched.triggers.fail = [ "stop_server" ]
+        sched.trigger = [ "stop_server 1" ]
+        #sched.triggers.success = [ "stop_server" ]
+        #sched.triggers.fail = [ "stop_server" ]
         self.stack.add_sched(sched)
 
         sched = self.stack.new_sched()
