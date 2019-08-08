@@ -26,14 +26,14 @@ class Main(newSchedStack):
 
         self.stack.init_substacks()
 
-        # Set docker host accordingly
-        if not self.docker_host:
-            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
-
     def run_unit_test(self):
 
         self.parse.add_required(key="repo_url")
         self.init_variables()
+
+        # Set docker host accordingly
+        if not self.docker_host:
+            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
 
         # If not test scripts, we just return and skip unit_tests
         if not self.dockerfile_test:
@@ -100,6 +100,10 @@ class Main(newSchedStack):
 
         self.init_variables()
 
+        # Set docker host accordingly
+        if not self.docker_host:
+            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
+
         default_values = {"hostname":self.docker_host}
         inputargs = {"default_values":default_values}
         inputargs["automation_phase"] = "continuous_delivery"
@@ -111,6 +115,10 @@ class Main(newSchedStack):
 
         self.parse.add_required(key="repo_url")
         self.init_variables()
+
+        # Set docker host accordingly
+        if not self.docker_host:
+            self.docker_host = self.stackargs["docker_host"] = "{}-docker_host".format(self.stack.cluster)  
 
         # This sets the commit info need to register the image
         # we don't put this in the parsing arguments requested 
@@ -166,7 +174,7 @@ class Main(newSchedStack):
         sched.conditions.frequency = "wait_last_run 20"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Insert commit info into run"
-        sched.trigger = [ "unit_test 1" ]
+        sched.triggers.success = [ "unit_test" ]
         self.stack.add_sched(sched)
 
         sched = self.stack.new_schedule()
@@ -180,7 +188,8 @@ class Main(newSchedStack):
         sched.conditions.noncurrent = [ "registerdocker" ]
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Running unit_test for code"
-        sched.trigger = [ "registerdocker 1" ]
+        sched.triggers.success = [ "registerdocker" ]
+        sched.triggers.fail = [ "stop_server" ]
         self.stack.add_sched(sched)
         
         sched = self.stack.new_sched()
@@ -192,7 +201,8 @@ class Main(newSchedStack):
         sched.conditions.frequency = "wait_last_run 60"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Building docker container with code"
-        sched.trigger = [ "stop_server 1" ]
+        sched.triggers.success = [ "stop_server" ]
+        sched.triggers.fail = [ "stop_server" ]
         self.stack.add_sched(sched)
 
         sched = self.stack.new_sched()
