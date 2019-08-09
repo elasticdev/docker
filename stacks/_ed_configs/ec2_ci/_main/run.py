@@ -184,11 +184,13 @@ class Main(newSchedStack):
         sched.archive.cleanup.instance = "clear"
         sched.failure.keep_resources = True
         sched.conditions.frequency = "wait_last_run 60"
+
         # Cannot have concurrency with a single docker host
         # The belows says another unit_test cannot run
         # while registerdocker is running b/c they run on the 
         # same dockerhost.  This can change with a more sophisicated
         # stack
+
         sched.conditions.noncurrent = [ "registerdocker" ]
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Running unit_test for code"
