@@ -168,6 +168,9 @@ class Main(newSchedStack):
         sched.job = "record_commit"
         sched.archive.timeout = 300
         sched.archive.timewait = 60
+        sched.archive.cleanup.instance = "clear"
+        sched.failure.keep_resources = True
+        sched.conditions.retries = 1
         sched.conditions.frequency = "wait_last_run 20"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Insert commit info into run"
@@ -178,6 +181,8 @@ class Main(newSchedStack):
         sched.job = "unit_test"
         sched.archive.timeout = 2700
         sched.archive.timewait = 120
+        sched.archive.cleanup.instance = "clear"
+        sched.failure.keep_resources = True
         sched.conditions.frequency = "wait_last_run 60"
         # Cannot have concurrency with a single docker host
         # The belows says another unit_test cannot run
@@ -195,6 +200,8 @@ class Main(newSchedStack):
         sched.job = "registerdocker"
         sched.archive.timeout = 2700
         sched.archive.timewait = 120
+        sched.archive.cleanup.instance = "clear"
+        sched.failure.keep_resources = True
         sched.conditions.frequency = "wait_last_run 60"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Building docker container with code"
