@@ -22,7 +22,7 @@ class Main(newSchedStack):
         self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
         self.stack.add_substack("elasticdev:::docker::docker_build")
         self.stack.add_substack("elasticdev:::ed_core::empty_stack")
-        self.stack.add_substack('elasticdev:::ec2_server_stop')
+        self.stack.add_substack('elasticdev:::aws::ec2_server_stop')
 
         self.stack.init_substacks()
 
