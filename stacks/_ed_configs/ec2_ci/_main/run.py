@@ -194,7 +194,7 @@ class Main(newSchedStack):
         # same dockerhost.  This can change with a more sophisicated
         # stack
 
-        sched.conditions.noncurrent = [ "registerdocker" ]
+        sched.conditions.noncurrent = [ "registerdocker", "stop_server" ]
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Running unit_test for code"
         sched.on_success = [ "registerdocker" ]
@@ -207,6 +207,7 @@ class Main(newSchedStack):
         sched.archive.timewait = 120
         sched.archive.cleanup.instance = "clear"
         sched.failure.keep_resources = True
+        sched.conditions.noncurrent = [ "unit_test", "stop_server" ]
         sched.conditions.frequency = "wait_last_run 60"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Building docker container with code"
@@ -220,6 +221,7 @@ class Main(newSchedStack):
         sched.archive.timewait = 10
         sched.archive.cleanup.instance = "clear"
         sched.failure.keep_resources = True
+        sched.conditions.noncurrent = [ "unit_test", "registerdocker" ]
         sched.conditions.frequency = "wait_last_run 10"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Stopping docker host"
