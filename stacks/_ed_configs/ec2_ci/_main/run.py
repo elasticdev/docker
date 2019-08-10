@@ -156,6 +156,7 @@ class Main(newSchedStack):
         self.stack.add_job("unit_test",instance_name="auto")
         self.stack.add_job("record_commit",instance_name="auto")
         self.stack.add_job("registerdocker",instance_name="auto")
+        self.stack.add_job("stop_server",instance_name="auto")
 
         # Evaluating Jobs and loads
         for run_job in self.stack.get_jobs(): eval(run_job)
