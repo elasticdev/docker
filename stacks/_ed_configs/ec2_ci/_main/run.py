@@ -113,7 +113,7 @@ class Main(newSchedStack):
 
         return self.stack.ec2_server_stop.insert(display=True,**inputargs)
 
-    def run_registerdocker(self):
+    def run_register_docker(self):
 
         self.parse.add_required(key="repo_url")
         self.init_variables()
@@ -157,7 +157,7 @@ class Main(newSchedStack):
         self.stack.unset_parallel()
         self.stack.add_job("unit_test",instance_name="auto")
         self.stack.add_job("record_commit",instance_name="auto")
-        self.stack.add_job("registerdocker",instance_name="auto")
+        self.stack.add_job("register_docker",instance_name="auto")
         self.stack.add_job("stop_server",instance_name="auto")
 
         # Evaluating Jobs and loads
@@ -190,19 +190,22 @@ class Main(newSchedStack):
 
         # Cannot have concurrency with a single docker host
         # The belows says another unit_test cannot run
-        # while registerdocker is running b/c they run on the 
+        # while register_docker is running b/c they run on the 
         # same dockerhost.  This can change with a more sophisicated
-        # stack
+        # stack.  This will also prevent a bunch of builds from completing
+        # b/c of a race conditions.  It's not a big deal because 
+        # the "runs" don't complete as it waits to stop the server, but
+        # the unit_test and register of docker has completed.
 
-        sched.conditions.noncurrent = [ "registerdocker", "stop_server" ]
+        sched.conditions.noncurrent = [ "register_docker", "stop_server" ]
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Running unit_test for code"
-        sched.on_success = [ "registerdocker" ]
+        sched.on_success = [ "register_docker" ]
         sched.on_failure = [ "stop_server" ]
         self.stack.add_sched(sched)
         
         sched = self.stack.new_sched()
-        sched.job = "registerdocker"
+        sched.job = "register_docker"
         sched.archive.timeout = 2700
         sched.archive.timewait = 120
         sched.archive.cleanup.instance = "clear"
@@ -221,7 +224,7 @@ class Main(newSchedStack):
         sched.archive.timewait = 10
         sched.archive.cleanup.instance = "clear"
         sched.failure.keep_resources = True
-        sched.conditions.noncurrent = [ "unit_test", "registerdocker" ]
+        sched.conditions.noncurrent = [ "unit_test", "register_docker" ]
         sched.conditions.frequency = "wait_last_run 10"
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Stopping docker host"
