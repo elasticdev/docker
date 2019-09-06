@@ -71,7 +71,7 @@ def run(stackargs):
     pipeline_env_var["REPOSITORY_URI"] = docker_repo["repository_uri"]
     pipeline_env_var["TRIGGER_ID"] = stack.trigger_id
     pipeline_env_var["TRIGGER_BRANCH"] = stack.repo_branch
-    pipeline_env_var["TRIGGER_SECRET"] = stack.trigger_secet
+    pipeline_env_var["TRIGGER_SECRET"] = stack.trigger_secret
 
     if stack.dockerfile_test: pipeline_env_var["DOCKER_FILE_TEST"] = stack.dockerfile_test
     if stack.docker_env_file: pipeline_env_var["DOCKER_ENV_FILE"] = stack.docker_env_file
