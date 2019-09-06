@@ -26,8 +26,6 @@
 | repo_branch        | branch to build from          | array    | master       |
 | dockerfile_test      | the dockerfile to run unit tests    | string   | None         |
 
-        self.parse.add_required(key="dockerfile",default="null")
-
 **Sample entry:**
 
 ```
