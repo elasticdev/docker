@@ -42,7 +42,7 @@ def run(stackargs):
 
     # Set docker host accordingly
     if not stack.docker_host:
-        stack.docker_host = stackargs["docker_host"] = "{}-docker_host".format(stack.cluster)  
+        stack.set_variable("docker_host","{}-docker_host".format(stack.cluster))
 
     # Check and convert objects accordingly
     if not isinstance(stack.commit_info,dict): 
@@ -94,10 +94,11 @@ def run(stackargs):
     stack.add_host_env_vars_to_run(pipeline_env_var)
 
     # Getting ecr login
-    human_description = "Getting ECR_LOGIN for pushing image"
-
+    # It runs the shellout and places
+    # the output in the environment variable "ECR_LOGIN"
+    # that will be stored in EnvVars in the pipeline run
     stack.execute_shellout(shelloutconfig="elasticdev:::aws::ecr_login",
-                           human_description='executing shelloutconfig "{}"'.format("ecr_login"),
+                           human_description="Getting ECR_LOGIN for pushing image",
                            insert_env_vars=json.dumps(["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]),
                            env_vars=json.dumps({"METHOD":"get","AWS_DEFAULT_REGION":stack.aws_default_region}),
                            output_to_json=None,
@@ -202,4 +203,3 @@ def run(stackargs):
                          **ikwargs)
 
     return stack.get_results()
-

@@ -129,7 +129,8 @@ class Main(newSchedStack):
 
         default_values = {"docker_repo":self.docker_repo}
         default_values["repo_key_group"] = self.repo_key_group
-        default_values["tag"] = self.commit_hash
+        # We use the abbrev commit hash with 7 characters
+        default_values["tag"] = self.commit_hash[0:6]
         default_values["config_env"] = self.config_env
         default_values["branch"] = self.repo_branch
         default_values["repo_branch"] = self.repo_branch
