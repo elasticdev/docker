@@ -128,7 +128,7 @@ def run(stackargs):
     default_values["callback"] = stack.callback_token
     default_values["values"] = "{}".format(str(stack.dict2str(values)))
 
-    human_description = "Creating of webhook for direct ci schedule_id={}, run_id={}".format(stack.schedule_id,stack.run_id)
+    human_description = "Creating of webhook for direct ci schedule_id={}".format(stack.schedule_id)
 
     stack.insert_builtin_cmd("execute restapi",
                              order_type="saas-report_sched::api",
