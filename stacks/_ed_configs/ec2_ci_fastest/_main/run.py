@@ -110,7 +110,6 @@ def run(stackargs):
     values["name"] = stack.cluster
 
     #values["project_id"] = "3240973214"
-    values["run_id"] = stack.run_id
     values["cluster"] = stack.cluster
     values["instance"] = stack.instance
     values["sched_token"] = stack.sched_token
