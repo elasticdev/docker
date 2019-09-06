@@ -1,0 +1,18 @@
+desc: Performs the fastest continuous integration with AWS/ec2. 
+release: 0.0.1
+categories: 
+   - ci
+   - fastest
+   - continuous_delivery
+   - dev
+tags:
+   - ci
+   - direct_build
+   - direct
+   - fast
+   - fastest
+   - continuous_delivery
+   - dev
+   - ed_saas
+   - ed
+   - featured
