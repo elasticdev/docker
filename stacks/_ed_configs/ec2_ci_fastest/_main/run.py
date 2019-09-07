@@ -9,7 +9,6 @@ def run(stackargs):
 
     # The repo_key_group is automatically added with ED creates the webhook and deployment key
     stack.parse.add_required(key="repo_key_group")
-
     stack.parse.add_required(key="docker_host",default="null")
     stack.parse.add_required(key="config_env",default="private")
     stack.parse.add_required(key="docker_repo")
