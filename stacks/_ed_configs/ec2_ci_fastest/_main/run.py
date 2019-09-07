@@ -23,8 +23,8 @@ def run(stackargs):
     stack.parse.add_required(key="aws_default_region",default="us-east-1")
 
     # Call endpoint
-    stack.parse.add_required(key="callback_api_endpoint")
-    stack.parse.add_required(key="callback_token")
+    #stack.parse.add_required(key="callback_api_endpoint")
+    #stack.parse.add_required(key="callback_token")
     stack.parse.add_required(key="sched_token")
 
     # location of the Dockerfile for unit tests
@@ -72,6 +72,8 @@ def run(stackargs):
     pipeline_env_var["TRIGGER_ID"] = stack.trigger_id
     pipeline_env_var["TRIGGER_BRANCH"] = stack.repo_branch
     pipeline_env_var["TRIGGER_SECRET"] = stack.trigger_secret
+    pipeline_env_var["DOCKER_IMAGE_TAG"] = "latest"
+    if stack.tag: pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
 
     if stack.dockerfile_test: pipeline_env_var["DOCKER_FILE_TEST"] = stack.dockerfile_test
     if stack.docker_env_file: pipeline_env_var["DOCKER_ENV_FILE"] = stack.docker_env_file
@@ -112,7 +114,7 @@ def run(stackargs):
     #values["project_id"] = "3240973214"
     values["cluster"] = stack.cluster
     values["instance"] = stack.instance
-    values["sched_token"] = stack.sched_token
+    #values["sched_token"] = stack.sched_token
     values["repo_url"] = stack.repo_url
     values["repo_branch"] = stack.repo_branch
 
@@ -124,7 +126,8 @@ def run(stackargs):
 
     default_values = {}
     default_values["http_method"] = "post"
-    default_values["api_endpoint"] = stack.callback_api_endpoint
+    #default_values["api_endpoint"] = stack.callback_api_endpoint
+    default_values["api_endpoint"] = stack.post_url
     default_values["callback"] = stack.callback_token
     default_values["values"] = "{}".format(str(stack.dict2str(values)))
 
