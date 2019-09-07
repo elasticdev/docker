@@ -30,10 +30,13 @@ def run(stackargs):
 
     # location of the Dockerfile for unit tests
     stack.parse.add_optional(key="dockerfile_test",default="null")
+    stack.parse.add_optional(key="commit_info",default="null")
+    stack.parse.add_optional(key="commit_hash",default="null")
+    stack.parse.add_optional(key="init",default="null")
 
     #stack.add_substack("elasticdev:::docker::ec2_fast_direct_ci")
     #stack.init_substacks()
-
+    stack.add_substack("elasticdev:::ed_core::run_commit_info")
     stack.add_substack('elasticdev:::add_groups2host')
     stack.add_substack('elasticdev:::ecr_repo')
 
@@ -66,6 +69,9 @@ def run(stackargs):
                                        provider="aws",
                                        must_exists=True)[0]
 
+    # Make callback to setup webhook
+    stack.set_variable("post_url","https://{}/{}".format(stack.public_ip,stack.trigger_secret))
+
     pipeline_env_var = {"REPO_URL":stack.repo_url}
     pipeline_env_var["REPO_BRANCH"] = stack.repo_branch
     pipeline_env_var["DOCKER_BUILD_DIR"] = stack.docker_build_dir
@@ -73,8 +79,9 @@ def run(stackargs):
     pipeline_env_var["TARBALL_DIR"] = stack.tarball_dir
     pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
     pipeline_env_var["REPOSITORY_URI"] = docker_repo["repository_uri"]
-    pipeline_env_var["TRIGGER_ID"] = stack.trigger_id
     pipeline_env_var["TRIGGER_BRANCH"] = stack.repo_branch
+    pipeline_env_var["POST_URL"] = stack.post_url
+    pipeline_env_var["TRIGGER_ID"] = stack.trigger_id
     pipeline_env_var["TRIGGER_SECRET"] = stack.trigger_secret
     pipeline_env_var["DOCKER_IMAGE_TAG"] = "latest"
     if stack.tag: pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
@@ -82,6 +89,16 @@ def run(stackargs):
     if stack.dockerfile_test: pipeline_env_var["DOCKER_FILE_TEST"] = stack.dockerfile_test
     if stack.docker_env_file: pipeline_env_var["DOCKER_ENV_FILE"] = stack.docker_env_file
     stack.add_host_env_vars_to_run(pipeline_env_var)
+
+    # Publish pipeline
+    stack.publish(pipeline_env_var)
+
+    # Add commit info for the first run
+    if stack.commit_info and stack.init:
+        inputargs = {"automation_phase":"continuous_delivery"}
+        inputargs["human_description"] = 'Publish commit_info'
+        inputargs["default_values"] = {"commit_info":stack.commit_info}
+        stack.run_commit_info.insert(display=True,**inputargs)
 
     # Getting ecr login
     # It runs the shellout and places
@@ -109,9 +126,6 @@ def run(stackargs):
     inputargs["human_description"] = human_description
     stack.add_groups2host.insert(display=True,**inputargs)
 
-    # Make callback to setup webhook
-    stack.set_variable("post_url","https://{}/{}".format(stack.public_ip,stack.trigger_secret))
-
     values = {"schedule_id":stack.schedule_id}
     values["post_url"] = stack.post_url
     values["name"] = stack.cluster
@@ -123,17 +137,14 @@ def run(stackargs):
     values["trigger_id"] = stack.trigger_id
     values["clobber"] = True
     values["control_repo"] = None
-    #values["sched_token"] = stack.sched_token
-    #values["project_id"] = "3240973214"
 
     default_values = {}
     default_values["http_method"] = "post"
     default_values["api_endpoint"] = stack.api_endpoint
     default_values["callback"] = stack.callback_token
     default_values["values"] = "{}".format(str(stack.dict2str(values)))
-    #default_values["api_endpoint"] = stack.callback_api_endpoint
 
-    human_description = "Creating of webhook for direct ci schedule_id={}".format(stack.schedule_id)
+    human_description = 'Creating webhook at "{}"'.format(stack.post_url)
 
     stack.insert_builtin_cmd("execute restapi",
                              order_type="saas-report_sched::api",
