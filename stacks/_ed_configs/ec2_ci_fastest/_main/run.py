@@ -23,7 +23,7 @@ def run(stackargs):
 
     # Call endpoint
     #stack.parse.add_required(key="callback_api_endpoint")
-    #stack.parse.add_required(key="callback_token")
+    stack.parse.add_required(key="callback_token")
     stack.parse.add_required(key="sched_token")
 
     # location of the Dockerfile for unit tests
@@ -125,10 +125,10 @@ def run(stackargs):
 
     default_values = {}
     default_values["http_method"] = "post"
-    #default_values["api_endpoint"] = stack.callback_api_endpoint
     default_values["api_endpoint"] = stack.post_url
     default_values["callback"] = stack.callback_token
     default_values["values"] = "{}".format(str(stack.dict2str(values)))
+    #default_values["api_endpoint"] = stack.callback_api_endpoint
 
     human_description = "Creating of webhook for direct ci schedule_id={}".format(stack.schedule_id)
 
