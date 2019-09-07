@@ -21,7 +21,7 @@ def run(stackargs):
     stack.parse.add_required(key="tag",default="null")
     stack.parse.add_required(key="aws_default_region",default="us-east-1")
     stack.parse.add_required(key="jiffy_saas_env",default="app")
-    stack.parse.add_required(key="api_endpoint",default="null")
+    stack.parse.add_required(key="webhook_api_endpoint",default="null")
 
     # Call endpoint
     #stack.parse.add_required(key="callback_api_endpoint")
@@ -51,8 +51,8 @@ def run(stackargs):
     if not stack.docker_host:
         stack.set_variable("docker_host","{}-docker_host".format(stack.cluster))
 
-    if not stack.api_endpoint:
-        stack.set_variable("api_endpoint","https://api-{}.elasticdev.io/web_api/v1.0/github/webhook".format(stack.jiffy_saas_env))
+    if not stack.webhook_api_endpoint:
+        stack.set_variable("webhook_api_endpoint","https://api-{}.elasticdev.io/web_api/v1.0/github/webhook".format(stack.jiffy_saas_env))
 
     docker_host_info = stack.check_resource(name=stack.docker_host,
                                             resource_type="server",
@@ -140,7 +140,7 @@ def run(stackargs):
 
     default_values = {}
     default_values["http_method"] = "post"
-    default_values["api_endpoint"] = stack.api_endpoint
+    default_values["api_endpoint"] = stack.webhook_api_endpoint
     default_values["callback"] = stack.callback_token
     default_values["values"] = "{}".format(str(stack.dict2str(values)))
 
