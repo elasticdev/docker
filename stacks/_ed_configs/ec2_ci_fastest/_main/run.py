@@ -70,7 +70,7 @@ def run(stackargs):
                                        must_exists=True)[0]
 
     # Make callback to setup webhook
-    stack.set_variable("post_url","https://{}/{}".format(stack.public_ip,stack.trigger_secret))
+    stack.set_variable("post_url","https://{}/{}".format(stack.public_ip,stack.trigger_id))
 
     pipeline_env_var = {"REPO_URL":stack.repo_url}
     pipeline_env_var["REPO_BRANCH"] = stack.repo_branch
@@ -137,6 +137,9 @@ def run(stackargs):
     values["trigger_id"] = stack.trigger_id
     values["clobber"] = True
     values["control_repo"] = None
+    # We all insecure ssl since it's just an ip address
+    # This can be changed later if using DNS
+    values["insecure_ssl"] = True
 
     default_values = {}
     default_values["http_method"] = "post"
