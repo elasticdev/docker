@@ -9,6 +9,7 @@ def run(stackargs):
 
     # The repo_key_group is automatically added with ED creates the webhook and deployment key
     stack.parse.add_required(key="repo_key_group")
+    stack.parse.add_required(key="dest_env_file",default="/var/tmp/docker/run/.env")
     stack.parse.add_required(key="docker_host",default="null")
     stack.parse.add_required(key="config_env",default="private")
     stack.parse.add_required(key="docker_repo")
@@ -84,6 +85,12 @@ def run(stackargs):
     pipeline_env_var["TRIGGER_ID"] = stack.trigger_id
     pipeline_env_var["TRIGGER_SECRET"] = stack.trigger_secret
     pipeline_env_var["DOCKER_IMAGE_TAG"] = "latest"
+
+    pipeline_env_var["DEST_ENV_FILE"] = stack.dest_env_file
+    pipeline_env_var["ENV_FIELDS"] = json.dumps(["REPO_KEY_LOC","ECR_LOGIN"]) 
+    #"DOCKER_USERNAME",
+    #"DOCKER_PASSWORD",
+
     if stack.tag: pipeline_env_var["DOCKER_IMAGE_TAG"] = stack.tag
 
     if stack.dockerfile_test: pipeline_env_var["DOCKER_FILE_TEST"] = stack.dockerfile_test
