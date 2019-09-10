@@ -3,9 +3,10 @@
 export DOCKER_BUILD_DIR=${DOCKER_BUILD_DIR:=/var/tmp/docker/build}
 export DOCKER_RUN_DIR=${DOCKER_RUN_DIR:=$DOCKER_BUILD_DIR}
 export DOCKER_RUN_IGNORE_COPY=${DOCKER_RUN_IGNORE_COPY:=None}
+export DOCKER_COMPOSE_BUILD=${DOCKER_COMPOSE_BUILD:=None}
 export DOCKER_COMPOSE_BACKGROUND=${DOCKER_COMPOSE_BACKGROUND:=True}
 
-if [ $DOCKER_BUILD_DIR != $DOCKER_RUN_DIR ] && [ $DOCKER_BUILD_DIR != "True" ]
+if [ $DOCKER_BUILD_DIR != $DOCKER_RUN_DIR ] && [ $DOCKER_RUN_IGNORE_COPY != "True" ]
 then
     #Clean up run dir
     rm -rf $DOCKER_RUN_DIR
@@ -19,6 +20,11 @@ else
 fi
 
 cd $DOCKER_RUN_DIR
+
+if [ $DOCKER_COMPOSE_BUILD == "True" ]
+then
+   docker-compose build || exit 1
+fi
 
 if [ $DOCKER_COMPOSE_BACKGROUND == "True" ]
 then

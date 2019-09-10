@@ -85,9 +85,10 @@ def run(stackargs):
     pipeline_env_var["POST_URL"] = stack.post_url
     pipeline_env_var["TRIGGER_ID"] = stack.trigger_id
     pipeline_env_var["TRIGGER_SECRET"] = stack.trigger_secret
-    pipeline_env_var["DOCKER_IMAGE_TAG"] = "latest"
-    pipeline_env_var["DOCKER_RUN_IGNORE_COPY="] = "True"
     pipeline_env_var["DOCKER_RUN_DIR"] = stack.docker_run_dir
+    pipeline_env_var["DOCKER_IMAGE_TAG"] = "latest"
+    pipeline_env_var["DOCKER_RUN_IGNORE_COPY"] = "True"
+    pipeline_env_var["DOCKER_COMPOSE_BUILD"] = "True"
 
     if hasattr(stack,"schedule_id") and stack.schedule_id:
         pipeline_env_var["SCHEDULE_ID"] = stack.schedule_id
