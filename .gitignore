@@ -8,11 +8,6 @@ gary
 *.swl
 
 # Packages
-build
-parts
-#bin
-var
-.installed.cfg
 
 # Installer logs
 pip-log.txt
