@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-#import json
 import os
 import sys
 import yaml
