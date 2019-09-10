@@ -16,7 +16,7 @@ def run(stackargs):
     stack.parse.add_required(key="dockerfile",default="Dockerfile")
     stack.parse.add_required(key="docker_env_file",default="null")
     stack.parse.add_required(key="docker_build_dir",default="/var/tmp/docker/build")
-    stack.parse.add_required(key="docker_run_dir",default="/var/tmp/docker/run")
+    #stack.parse.add_required(key="docker_run_dir",default="/var/tmp/docker/run")
     stack.parse.add_required(key="destdir",default="/var/tmp/docker/build")
     stack.parse.add_required(key="tarball_dir",default="/usr/src/tarballs")
     stack.parse.add_required(key="aws_default_region",default="us-east-1")
@@ -86,7 +86,7 @@ def run(stackargs):
     pipeline_env_var["TRIGGER_ID"] = stack.trigger_id
     pipeline_env_var["TRIGGER_SECRET"] = stack.trigger_secret
     pipeline_env_var["DOCKER_IMAGE_TAG"] = "latest"
-    pipeline_env_var["DOCKER_RUN_DIR"] = stack.docker_run_dir
+    #pipeline_env_var["DOCKER_RUN_DIR"] = stack.docker_run_dir
 
     if hasattr(stack,"schedule_id") and stack.schedule_id:
         pipeline_env_var["SCHEDULE_ID"] = stack.schedule_id
