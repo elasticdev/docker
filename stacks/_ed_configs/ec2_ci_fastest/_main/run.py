@@ -87,6 +87,7 @@ def run(stackargs):
     pipeline_env_var["DOCKER_IMAGE_TAG"] = "latest"
 
     pipeline_env_var["DEST_ENV_FILE"] = stack.dest_env_file
+
     pipeline_env_var["ENV_FIELDS"] = json.dumps(["REPO_KEY_LOC",
                                                  "TRIGGER_ID",
                                                  "TRIGGER_BRANCH",
