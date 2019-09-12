@@ -113,6 +113,9 @@ def run(stackargs):
     if hasattr(stack,"schedule_id") and stack.schedule_id:
         pipeline_env_var["SCHEDULE_ID"] = stack.schedule_id
 
+    if hasattr(stack,"job_instance_id") and stack.job_instance_id:
+        pipeline_env_var["JOB_INSTANCE_ID"] = stack.job_instance_id
+
     # Enter host info
     pipeline_env_var["HOST_QUEUE"] = host_info["host_queue"]
     pipeline_env_var["HOST_TOKEN"] = host_info["token"]
@@ -123,7 +126,15 @@ def run(stackargs):
     pipeline_env_var["DEST_ENV_FILE"] = stack.dest_env_file
 
     pipeline_env_var["ENV_FIELDS"] = json.dumps(["REPO_KEY_LOC",
+                                                 "HOST_QUEUE",
+                                                 "HOST_TOKEN",
                                                  "SCHEDULE_ID",
+                                                 "JOB_NAME",
+                                                 "SCHED_TYPE",
+                                                 "SCHED_NAME",
+                                                 "RUN_TITLE",
+                                                 "JOB_INSTANCE_ID",
+                                                 "PROJECT_ID",
                                                  "SCHEDULE_TOKEN",
                                                  "DOCKER_FILE",
                                                  "DOCKER_FILE_TEST",
