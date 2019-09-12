@@ -3,15 +3,6 @@ def run(stackargs):
     import json
 
     stack = newStack(stackargs)
-
-    print 'a'*32
-    print stackargs
-    print 'b'*32
-    print json.dumps(stackargs,sort_keys=True,indent=4)
-    print 'c'*32
-    raise
-
-
     stack.parse.add_required(key="repo_url")
     stack.parse.add_required(key="repo_branch",default="dev")
 
