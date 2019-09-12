@@ -9,6 +9,7 @@ def run(stackargs):
 
     # The repo_key_group is automatically added with ED creates the webhook and deployment key
     stack.parse.add_required(key="repo_key_group")
+    stack.parse.add_required(key="project_id")
     stack.parse.add_required(key="dest_env_file",default="/var/tmp/docker/run/.env")
     stack.parse.add_required(key="docker_host",default="null")
     stack.parse.add_required(key="config_env",default="private")
@@ -29,6 +30,9 @@ def run(stackargs):
     #stack.parse.add_required(key="callback_api_endpoint")
     stack.parse.add_required(key="callback_token")
     stack.parse.add_required(key="sched_token")
+
+    stack.parse.add_optional(key="run_title",default="fastest_docker_ci")
+    stack.parse.add_optional(key="job_name",default="fastest_docker_ci")
 
     # location of the Dockerfile for unit tests
     stack.parse.add_optional(key="dockerfile_test",default="null")
@@ -60,6 +64,8 @@ def run(stackargs):
                                             resource_type="server",
                                             must_exists=True)[0]
 
+    host_info = stack.get_host_info(hostname=stack.docker_host)
+
     stack.set_variable("public_ip",docker_host_info["public_ip"])
 
     stack.set_variable("trigger_id",stack.get_random_string(size=12))
@@ -90,8 +96,26 @@ def run(stackargs):
     pipeline_env_var["DOCKER_RUN_IGNORE_COPY"] = "True"
     pipeline_env_var["DOCKER_COMPOSE_BUILD"] = "True"
 
+    pipeline_env_var["PROJECT_ID"] = stack.project_id
+
+    if hasattr(stack,"sched_name") and stack.sched_name:
+        pipeline_env_var["SCHED_NAME"] = stack.sched_name
+
+    if hasattr(stack,"sched_type") and stack.sched_type:
+        pipeline_env_var["SCHED_TYPE"] = stack.sched_type
+
+    if hasattr(stack,"run_title") and stack.run_title:
+        pipeline_env_var["RUN_TITLE"] = stack.run_title
+
+    if hasattr(stack,"job_name") and stack.job_name:
+        pipeline_env_var["JOB_NAME"] = stack.job_name
+
     if hasattr(stack,"schedule_id") and stack.schedule_id:
         pipeline_env_var["SCHEDULE_ID"] = stack.schedule_id
+
+    # Enter host info
+    pipeline_env_var["HOST_QUEUE"] = host_info["host_queue"]
+    pipeline_env_var["HOST_TOKEN"] = host_info["token"]
 
     if hasattr(stack,"qhost_callback_token") and stack.qhost_callback_token:
         pipeline_env_var["QHOST_CALLBACK_TOKEN"] = stack.qhost_callback_token
