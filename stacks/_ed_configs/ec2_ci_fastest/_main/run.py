@@ -187,6 +187,7 @@ def run(stackargs):
     values["repo_branch"] = stack.repo_branch
     values["secret"] = stack.trigger_secret
     values["trigger_id"] = stack.trigger_id
+    values["project_id"] = stack.project_id
     values["clobber"] = True
     values["control_repo"] = None
     # We all insecure ssl since it's just an ip address
