@@ -116,7 +116,7 @@ def run(stackargs):
         pipeline_env_var["JOB_INSTANCE_ID"] = stack.job_instance_id
 
     # Enter host info
-    pipeline_env_var["HOST_QUEUE"] = host_info["host_queue"]
+    pipeline_env_var["QUEUE_HOST"] = host_info["queue_host"]
     pipeline_env_var["HOST_TOKEN"] = host_info["token"]
 
     if hasattr(stack,"qhost_callback_token") and stack.qhost_callback_token:
@@ -125,7 +125,7 @@ def run(stackargs):
     pipeline_env_var["DEST_ENV_FILE"] = stack.dest_env_file
 
     pipeline_env_var["ENV_FIELDS"] = json.dumps(["REPO_KEY_LOC",
-                                                 "HOST_QUEUE",
+                                                 "QUEUE_HOST",
                                                  "HOST_TOKEN",
                                                  "SCHEDULE_ID",
                                                  "JOB_NAME",
@@ -142,7 +142,7 @@ def run(stackargs):
                                                  "TRIGGER_ID",
                                                  "TRIGGER_BRANCH",
                                                  "TRIGGER_SECRET",
-                                                 "ECR_LOGIN"]) 
+                                                 "ECR_LOGIN"])
     #"DOCKER_USERNAME",
     #"DOCKER_PASSWORD",
 
