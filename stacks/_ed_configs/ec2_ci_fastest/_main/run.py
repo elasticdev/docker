@@ -153,7 +153,15 @@ def run(stackargs):
     stack.add_host_env_vars_to_run(pipeline_env_var)
 
     # Publish pipeline
-    stack.publish(pipeline_env_var)
+    publish_vars = {"REPO_URL":stack.repo_url}
+    publish_vars["REPO_BRANCH"] = stack.repo_branch
+    publish_vars["DOCKER_BUILD_DIR"] = stack.docker_build_dir
+    publish_vars["DOCKER_FILE"] = stack.dockerfile
+    publish_vars["REPOSITORY_URI"] = docker_repo["repository_uri"]
+    publish_vars["TRIGGER_BRANCH"] = stack.repo_branch
+    publish_vars["POST_URL"] = stack.post_url
+    publish_vars["DOCKER_RUN_DIR"] = stack.docker_run_dir
+    stack.publish(publish_vars)
 
     # Add commit info for the first run
     if stack.commit_info and stack.init:
