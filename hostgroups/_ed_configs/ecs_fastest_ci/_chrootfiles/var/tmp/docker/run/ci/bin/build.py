@@ -92,7 +92,7 @@ def run_cmd(cmd):
 
     return results
 
-@timeout(int(os.environ.get("TIMEOUT",3600)))
+@timeout(int(os.environ.get("TIMEOUT",3)))
 def run_cmds(cmds):
 
     status = True
@@ -161,7 +161,7 @@ def git_clone_repo():
         add_cmd = "git checkout {}".format(commit)
         cmds.append("cd {}; {}".format(repo_dir,add_cmd))
 
-    os.environ["TIMEOUT"] = 30
+    os.environ["TIMEOUT"] = "30"
 
     try:
         results = run_cmds(cmds)
@@ -180,7 +180,7 @@ def build_container(dockerfile="Dockerfile"):
     cmds.append("cd {}; docker build -t {}:{} . -f {}".format(repo_dir,repository_uri,tag,dockerfile))
     cmds.append("cd {}; docker build -t {}:latest . -f {}".format(repo_dir,repository_uri,dockerfile))
 
-    os.environ["TIMEOUT"] = os.environ.get("DOCKER_BUILD_TIMEOUT",1800)
+    os.environ["TIMEOUT"] = str(os.environ.get("DOCKER_BUILD_TIMEOUT",1800))
 
     try:
         results = run_cmds(cmds)
@@ -195,13 +195,13 @@ def push_container():
     repository_uri = os.environ["REPOSITORY_URI"]
     ecr_login = os.environ["ECR_LOGIN"]
     tag = os.environ["COMMIT_HASH"][0:6]
-    print "Pushing latest image to repository {}, tag = {}".format(repository_uri,tag)
+    print "Pushing image to repository {}, tag = {}".format(repository_uri,tag)
     cmds = []
     cmds.append(ecr_login)
-    cmd = "docker push {}".format(repository_uri)
+    cmd = "docker push {}:{}".format(repository_uri,tag)
     cmds.append(cmd)
 
-    os.environ["TIMEOUT"] = 300
+    os.environ["TIMEOUT"] = "300"
 
     try:
         results = run_cmds(cmds)
@@ -280,12 +280,12 @@ class LocalDockerCI(object):
         order["human_description"] = kwargs["human_description"]
         order["role"] = kwargs["role"]
 
-        order["log"] = kwargs["log"]
         order["start_time"] = kwargs["start_time"]
         order["status"] = kwargs["status"]
         order["stop_time"] = str(int(time()))
         order["checkin"] = order["stop_time"]
         order["total_time"] = int(order["stop_time"]) - int(order["start_time"])
+        if kwargs.get("log"): order["log"] = kwargs["log"]
 
         return order
 
@@ -395,7 +395,7 @@ class LocalDockerCI(object):
         if not results.get("status"):
             print "ERROR: push container failed - Check ECR login expiration"
             print ''
-            print results["logs"]
+            if results.get("logs"): print results["logs"]
             print ''
             inputargs["status"] = "failed"
         else:
@@ -494,12 +494,14 @@ class LocalDockerCI(object):
             # Get new data
             data = self._get_new_data()
 
-            try:
-                status,orders,loaded_yaml = self._run()
-                if status is None: raise
-            except:
+            status,orders,loaded_yaml = self._run()
+
+            if status is None: 
+                #print "Not new yml files to load"
                 sleep(1)
                 continue
+
+            print "The webhook info has been loaded. {}".format(loaded_yaml)
 
             data["commit"] = loaded_yaml
 
