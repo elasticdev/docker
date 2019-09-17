@@ -140,6 +140,7 @@ def run(stackargs):
                                                  "REPOSITORY_URI",
                                                  "QHOST_CALLBACK_TOKEN",
                                                  "TRIGGER_ID",
+                                                 "REPO_BRANCH",
                                                  "TRIGGER_BRANCH",
                                                  "TRIGGER_SECRET",
                                                  "ECR_LOGIN"])

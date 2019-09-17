@@ -14,6 +14,7 @@ from subprocess import STDOUT
 import string
 import random
 import requests
+#from shutil import which
 
 class DateTimeJsonEncoder(json.JSONEncoder):
 
@@ -57,6 +58,16 @@ git "$@"
 
     return filename
 
+def get_queue_id(size=6,input_string=None):
+
+    date_epoch =str(int(time()))
+    queue_id = "{}{}".format(date_epoch,id_generator(size))
+
+    return queue_id
+
+#def is_tool(name):
+#    return which(name) is not None
+
 def execute_cmd(cmd):
   
     process = Popen(cmd,shell=True,bufsize=0,stdout=PIPE,stderr=STDOUT)
@@ -86,7 +97,7 @@ def run_cmd(cmd):
     else:
         results = {"status":False}
 
-    results["logs"] = [line.rstrip('\n') for line in open(log_file,"r")]
+    results["log"] = [line.rstrip('\n') for line in open(log_file,"r")]
 
     os.system("rm -rf {}".format(log_file))
 
@@ -97,20 +108,20 @@ def run_cmds(cmds):
 
     status = True
 
-    _logs = []
+    _log = []
 
     for cmd in cmds:
-        _logs.append('-- Executing "{}" --\n'.format(cmd))
+        _log.append('-- Executing "{}" --\n'.format(cmd))
         result = run_cmd(cmd)
-        if result.get("logs"): _logs.extend(result["logs"])
+        if result.get("log"): _log.extend(result["log"])
         if result.get("status") is True: continue
         status = False
         break
 
-    logs = '\n'.join(_logs)
+    log = '\n'.join(_log)
 
     results = {"status":status}
-    results["logs"] = logs
+    results["log"] = log
 
     return results
 
@@ -131,12 +142,16 @@ def git_clone_repo():
     git_url = os.environ.get("REPO_URL")
     prv_key_loc = os.environ.get("REPO_KEY_LOC")
     commit = os.environ.get("COMMIT_HASH")
-    branch = os.environ.get("REPO_BRANCH","master")
+
+    branch = os.environ.get("REPO_BRANCH")
+    if not branch: branch = os.environ.get("TRIGGER_BRANCH")
+    if not branch: branch = "master"
+
     wrapper_script = create_git_ssh_wrapper()
 
     if not git_url:
         msg = "WARN: git_url not given, not cloning %s" % (repo_dir)
-        results = {"logs":msg,"status":False}
+        results = {"log":msg,"status":False}
         return results
 
     if prv_key_loc:
@@ -147,10 +162,7 @@ def git_clone_repo():
 
     cmds = []
 
-    _branch = "master"
-    if not branch: _branch = branch
-
-    add_cmd = "git pull origin {}".format(_branch)
+    add_cmd = "git pull origin {}".format(branch)
 
     if base_cmd:
         cmds.append("cd {}; {} {}".format(repo_dir,base_cmd,add_cmd))
@@ -187,6 +199,37 @@ def build_container(dockerfile="Dockerfile"):
     except:
         results = {"status":False}
         results["log"] = "TIMED OUT building container"
+
+    return results
+
+def scan_image():
+
+    trivy_exists = None
+
+    #if is_tool("trivy"): trivy_exists = True
+
+    if not trivy_exists and os.path.exists("/usr/local/bin/trivy"): 
+        trivy_exists = True
+
+    if not trivy_exists:
+        msg = "ERROR: Could not retrieve trivy to scan the image"
+        results = {"status":False}
+        results["log"] = msg
+        return results
+
+    os.environ["TIMEOUT"] = "1800"
+
+    repository_uri = os.environ["REPOSITORY_URI"]
+    tag = os.environ["COMMIT_HASH"][0:6]
+    fqn_image = "{}:{}".format(repository_uri,tag)
+
+    cmds = [ "trivy {}".format(fqn_image) ]
+
+    try:
+        results = run_cmds(cmds)
+    except:
+        results = {"status":False}
+        results["log"] = "TIMED OUT scanning {}".format(fqn_image)
 
     return results
 
@@ -245,13 +288,6 @@ def execute_http_post(**kwargs):
     print "The callback http post for results succeeded!"
 
     return True
-
-def get_queue_id(size=6,input_string=None):
-
-    date_epoch =str(int(time()))
-    queue_id = "{}{}".format(date_epoch,id_generator(size))
-
-    return queue_id
 
 class LocalDockerCI(object):
 
@@ -312,7 +348,7 @@ class LocalDockerCI(object):
             inputargs["status"] = "failed"
 
         if not inputargs.get("log"): inputargs["log"] = msg
-        print inputargs.get("logs")
+        print inputargs.get("log")
 
         os.system("rm -rf {}".format(file_path))
         orders.append(self._get_order(**inputargs))
@@ -334,8 +370,8 @@ class LocalDockerCI(object):
 
         results = git_clone_repo()
 
-        if results.get("logs"): 
-            inputargs["log"] = results["logs"]
+        if results.get("log"): 
+            inputargs["log"] = results["log"]
 
         if results.get("status") is False: 
             msg = "ERROR: cloning code failed"
@@ -345,7 +381,7 @@ class LocalDockerCI(object):
             inputargs["status"] = "completed"
 
         if not inputargs.get("log"): inputargs["log"] = msg
-        print inputargs.get("logs")
+        print inputargs.get("log")
 
         orders.append(self._get_order(**inputargs))
 
@@ -359,7 +395,7 @@ class LocalDockerCI(object):
         inputargs["status"] = "in_progress"
         # REPOSITORY_URI This needs to be set for builds
         results = build_container(os.environ["DOCKER_FILE_TEST"])
-        if results.get("logs"): inputargs["log"] = results["logs"]
+        if results.get("log"): inputargs["log"] = results["log"]
 
         if results.get("status") is False: 
             msg = "ERROR: testing of code failed"
@@ -369,7 +405,7 @@ class LocalDockerCI(object):
             inputargs["status"] = "completed"
 
         if not inputargs.get("log"): inputargs["log"] = msg
-        print inputargs.get("logs")
+        print inputargs.get("log")
 
         orders.append(self._get_order(**inputargs))
 
@@ -386,7 +422,7 @@ class LocalDockerCI(object):
         dockerfile = os.environ.get("DOCKER_FILE")
         if not dockerfile: dockerfile = "Dockerfile"
         results = build_container(dockerfile)
-        if results.get("logs"): inputargs["log"] = results["logs"]
+        if results.get("log"): inputargs["log"] = results["log"]
 
         if not results.get("status"):
             inputargs["status"] = "failed"
@@ -396,7 +432,7 @@ class LocalDockerCI(object):
             msg = "building of container succeeded"
 
         if not inputargs.get("log"): inputargs["log"] = msg
-        print inputargs.get("logs")
+        print inputargs.get("log")
 
         orders.append(self._get_order(**inputargs))
 
@@ -410,7 +446,7 @@ class LocalDockerCI(object):
         inputargs["status"] = "in_progress"
 
         results = push_container()
-        if results.get("logs"): inputargs["log"] = results["logs"]
+        if results.get("log"): inputargs["log"] = results["log"]
 
         if not results.get("status"):
             msg = "pushing of container failed"
@@ -420,7 +456,31 @@ class LocalDockerCI(object):
             inputargs["status"] = "completed"
 
         if not inputargs.get("log"): inputargs["log"] = msg
-        print inputargs.get("logs")
+        print inputargs.get("log")
+
+        orders.append(self._get_order(**inputargs))
+
+        return inputargs
+
+    def _scan_image(self,orders):
+
+        inputargs = {"start_time":str(int(time()))}
+        inputargs["human_description"] = "scanning of image"
+        inputargs["role"] = "security/scan"
+        inputargs["status"] = "in_progress"
+
+        results = scan_image()
+        if results.get("log"): inputargs["log"] = results["log"]
+
+        if not results.get("status"):
+            msg = "scanning of image failed"
+            inputargs["status"] = "failed"
+        else:
+            msg = "scanning of image succeeded"
+            inputargs["status"] = "completed"
+
+        if not inputargs.get("log"): inputargs["log"] = msg
+        print inputargs.get("log")
 
         orders.append(self._get_order(**inputargs))
 
@@ -494,7 +554,7 @@ class LocalDockerCI(object):
         if cresults.get("status") == "failed": return cresults.get("status"),orders,loaded_yaml
 
         # test code if necessary
-        if os.environ.get("DOCKER_FILE_TEST"):
+        if os.environ.get("DOCKER_FILE_TEST") and os.path.exists(os.environ["DOCKER_FILE_TEST"]):
             tresults = self._test_code(orders)
             if tresults.get("status") == "failed": return tresults.get("status"),orders,loaded_yaml
 
@@ -505,6 +565,12 @@ class LocalDockerCI(object):
         # push container
         presults = self._push_container(orders)
         if presults.get("status") == "failed": return presults.get("status"),orders,loaded_yaml
+
+        # scan image
+        enable_scan_file = "{}/{}".format(os.environ["DOCKER_BUILD_DIR"],"scan_docker_image")
+        if os.path.exists(enable_scan_file):
+            sresults = self._scan_image(orders)
+            if sresults.get("status") == "failed": return sresults.get("status"),orders,loaded_yaml
 
         return "successful",orders,loaded_yaml
 
