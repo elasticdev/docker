@@ -4,7 +4,9 @@
   
   - How it works: code change is made, a webhook is sent directly to the dockerhost, which then tests and builds immediately.  It's liken to building locally. 
 
-  - A good application is a feature branched, where you want to build and test remotely. However you want it to build immediately and take advantage of the docker cache and private network on AWS.  You may also want a "temporary" registroy on ecr to for this featured branched.  This stack inconjuction with the "ecr_repo" stack can create a completely separate featured development environmnent.   Once you're done, you can delete the project and the ecr_repo and build dockerhost will be deleted.
+  - **Security Image Scanning** - this stack has an option to scan the images built and pushed with trivy - https://github.com/aquasecurity/trivy.  Place this file **"elasticdev/security_scan"** in the repositoy
+
+  - A good application is a feature branched, where you want to build and test remotely. However you want it to build immediately and take advantage of the docker cache and private network on AWS.  You may also want a "temporary" registroy on ecr to for this featured branched.  This stack inconjuction with the "ecr_repo" stack can create a completely separate featured development environmnent.   Once you're done, you can delete the project and the docker build host will be deleted.
 
 **Infrastructure**
 
