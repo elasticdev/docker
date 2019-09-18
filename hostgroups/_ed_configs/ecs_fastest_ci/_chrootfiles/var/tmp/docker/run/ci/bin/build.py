@@ -162,7 +162,7 @@ def git_clone_repo():
 
     cmds = [ 'git config --global user.email "automation@elasticdev.io"' ]
     cmds.append('git config --global user.name "ElasticDev"')
-    cmds.append("git checkout {}".format(branch))
+    cmds.append("cd {}; git checkout {}".format(repo_dir,branch))
 
     add_cmd = "git pull origin {}".format(branch)
 
