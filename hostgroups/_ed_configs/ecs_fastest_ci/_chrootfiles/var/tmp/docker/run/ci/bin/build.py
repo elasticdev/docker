@@ -389,6 +389,10 @@ class LocalDockerCI(object):
 
             publish_vars = loaded_yaml.copy()
             if "status" in publish_vars: del publish_vars["status"]
+
+            repository_uri = os.environ["REPOSITORY_URI"]
+            tag = loaded_yaml["commit_hash"][0:6]
+            publish_vars["DOCKER_IMAGE"] = "{}:{}".format(repository_uri,tag)
             data["publish_vars"] = publish_vars
 
             data = self._close_pipeline(status,data,orders)
