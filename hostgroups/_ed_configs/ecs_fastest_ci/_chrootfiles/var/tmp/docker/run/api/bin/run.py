@@ -93,12 +93,18 @@ class WebhookProcess(object):
 
         return status,results
 
-    def _get_hook_blocks(self,**kwargs):
+    def _get_hook_blocks_by_headers(self,**kwargs):
 
-        provider,provider_id = kwargs["user"].replace("|","_").split("_")
+        user_agent = str(request.headers.get('User-Agent')).lower()
 
-        if provider == "github": return self._get_github_hook_blocks()
-        if provider == "bitbucket": return self._get_bitbucket_hook_blocks()
+        if "bitbucket" in user_agent: 
+            status,results = self._get_bitbucket_hook_blocks()
+            provider = "bitbucket"
+        else:
+            status,results = self._get_github_hook_blocks()
+            provider = "github"
+
+        return provider,status,results
 
     def _check_src_ip(self,**kwargs):
 
@@ -106,8 +112,8 @@ class WebhookProcess(object):
         if os.environ.get('GHE_ADDRESS'):
             hook_blocks = [unicode(os.environ.get('GHE_ADDRESS'))]
         else:
-            status,hook_blocks = self._get_hook_blocks(**kwargs)
-            if status is False: return "could not determine src ip acceptable ipaddresses"
+            provider,status,hook_blocks = self._get_hook_blocks_by_headers(**kwargs)
+            if status is False: return 'could not determine src ip acceptable "{}" ipaddresses'.format(provider)
 
         if len(request.access_route) > 1:
             remote_ip = request.access_route[-1]
@@ -118,7 +124,7 @@ class WebhookProcess(object):
 
         for block in hook_blocks:
             if ipaddress.ip_address(request_ip) in ipaddress.ip_network(block):
-                print "request_ip = {} is in the list of acceptable ipaddresses".format(request_ip)
+                print 'request_ip = {} is in the list of acceptable "{}" ipaddresses'.format(request_ip,provider)
                 return True
 
         msg = "{} is not in list of accepted src ipaddresses".format(request_ip)
@@ -290,7 +296,7 @@ class WebhookProcess(object):
     def post(self,**kwargs):
 
         # Check ipaddress
-        msg = self._check_src_ip()
+        msg = self._check_src_ip(**kwargs)
 
         if msg is not True: 
             print msg
@@ -352,7 +358,7 @@ class FastestDockerCI(WebhookProcess,Resource):
         self.secret = os.environ.get("TRIGGER_SECRET")
         if self.secret: self.secret = str(self.secret)
 
-        WebhookProcess.__init__()
+        WebhookProcess.__init__(self)
 
 api.add_resource(FastestDockerCI, '/<string:trigger_id>')
 
