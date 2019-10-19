@@ -1,10 +1,2 @@
-# contrib_repo_template
-This is the template contribution repository used for authoring.
-
-
-
-
-
-
-
+# Docker repo for contributing to elasticdev.io
 
