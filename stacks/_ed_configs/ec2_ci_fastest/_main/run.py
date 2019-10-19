@@ -57,7 +57,15 @@ def run(stackargs):
         stack.set_variable("docker_host","{}-docker_host".format(stack.cluster))
 
     if not stack.webhook_api_endpoint:
-        stack.set_variable("webhook_api_endpoint","https://api-{}.elasticdev.io/web_api/v1.0/login/webhook".format(stack.jiffy_saas_env))
+
+        if "github" in stack.repo_url: 
+            provider = "github"
+        elif "bitbucket" in stack.repo_url: 
+            provider = "bitbucket"
+        else:
+            stack.ehandle.NeedMoreInfo(message="Could not determine the repo provider")
+
+        stack.set_variable("webhook_api_endpoint","https://api-{}.elasticdev.io/web_api/v1.0/{}/webhook".format(stack.jiffy_saas_env,provider))
 
     docker_host_info = stack.check_resource(name=stack.docker_host,
                                             resource_type="server",
