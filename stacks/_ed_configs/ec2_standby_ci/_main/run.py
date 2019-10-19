@@ -167,7 +167,7 @@ def run(stackargs):
     ikwargs["commit_hash"] = stack.commit_hash
     ikwargs["cluster"] = stack.cluster
     ikwargs["provider"] = "aws"
-    ikwargs["image"] = "{}:{}".format(docker_repo["repository_uri"],stack.tag)
+    ikwargs["image"] = "{}:{}".format(docker_repo["repository_uri"],stack.tag[0:6])
 
     # We make the name of the image the same as the commit_hash
     ikwargs["name"] = stack.commit_hash
