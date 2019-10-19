@@ -53,7 +53,7 @@ def run(stackargs):
         stack.set_variable("docker_host","{}-docker_host".format(stack.cluster))
 
     if not stack.webhook_api_endpoint:
-        stack.set_variable("webhook_api_endpoint","https://api-{}.elasticdev.io/web_api/v1.0/github/webhook".format(stack.jiffy_saas_env))
+        stack.set_variable("webhook_api_endpoint","https://api-{}.elasticdev.io/web_api/v1.0/login/webhook".format(stack.jiffy_saas_env))
 
     docker_host_info = stack.check_resource(name=stack.docker_host,
                                             resource_type="server",
