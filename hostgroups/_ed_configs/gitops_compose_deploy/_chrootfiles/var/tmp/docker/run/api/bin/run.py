@@ -93,12 +93,18 @@ class WebhookProcess(object):
 
         return status,results
 
-    def _get_hook_blocks(self,**kwargs):
+    def _get_hook_blocks_by_headers(self,**kwargs):
 
-        provider,provider_id = kwargs["user"].replace("|","_").split("_")
+        user_agent = str(request.headers.get('User-Agent')).lower()
 
-        if provider == "github": return self._get_github_hook_blocks()
-        if provider == "bitbucket": return self._get_bitbucket_hook_blocks()
+        if "bitbucket" in user_agent: 
+            status,results = self._get_bitbucket_hook_blocks()
+            provider = "bitbucket"
+        else:
+            status,results = self._get_github_hook_blocks()
+            provider = "github"
+
+        return provider,status,results
 
     def _check_src_ip(self,**kwargs):
 
@@ -106,8 +112,8 @@ class WebhookProcess(object):
         if os.environ.get('GHE_ADDRESS'):
             hook_blocks = [unicode(os.environ.get('GHE_ADDRESS'))]
         else:
-            status,hook_blocks = self._get_hook_blocks(**kwargs)
-            if status is False: return "could not determine src ip acceptable ipaddresses"
+            provider,status,hook_blocks = self._get_hook_blocks_by_headers(**kwargs)
+            if status is False: return 'could not determine src ip acceptable "{}" ipaddresses'.format(provider)
 
         if len(request.access_route) > 1:
             remote_ip = request.access_route[-1]
@@ -118,7 +124,7 @@ class WebhookProcess(object):
 
         for block in hook_blocks:
             if ipaddress.ip_address(request_ip) in ipaddress.ip_network(block):
-                print "request_ip = {} is in the list of acceptable ipaddresses".format(request_ip)
+                print 'request_ip = {} is in the list of acceptable "{}" ipaddresses'.format(request_ip,provider)
                 return True
 
         msg = "{} is not in list of accepted src ipaddresses".format(request_ip)
@@ -203,8 +209,8 @@ class WebhookProcess(object):
             dest_branch = pullrequest["destination"]["branch"]["name"]
             src_branch = pullrequest["source"]["branch"]["name"]
   
-            results["branch"] = dest_branch
-            results["src_branch"] = src_branch
+            results["dest_branch"] = dest_branch
+            results["branch"] = src_branch
 
             commit_hash = source_hash
             results["message"] = pullrequest["title"]
@@ -303,7 +309,7 @@ class WebhookProcess(object):
     def post(self,**kwargs):
 
         # Check ipaddress
-        msg = self._check_src_ip()
+        msg = self._check_src_ip(**kwargs)
 
         if msg is not True: 
             print msg
@@ -353,21 +359,21 @@ class WebhookProcess(object):
             yaml_file.write(yaml.safe_dump(payload,default_flow_style=False))
         print "file written here {}".format(filepath)
 
-class DirectDockerCD(WebhookProcess,Resource):
+class FastestDockerCI(WebhookProcess,Resource):
 
     def __init__(self):
   
         self.events = [ "push", "pull_request" ]
-        self.build_queue_dir = os.environ.get("CD_QUEUE_DIR","/var/tmp/docker/cd/queue")
+        self.build_queue_dir = os.environ.get("FASTEST_CI_QUEUE_DIR","/var/tmp/docker/fastest-ci/queue")
         self.trigger_id = str(os.environ["TRIGGER_ID"])
         self.trigger_branch = str(os.environ["TRIGGER_BRANCH"])
 
         self.secret = os.environ.get("TRIGGER_SECRET")
         if self.secret: self.secret = str(self.secret)
 
-        WebhookProcess.__init__()
+        WebhookProcess.__init__(self)
 
-api.add_resource(DirectDockerCD, '/<string:trigger_id>')
+api.add_resource(FastestDockerCI, '/<string:trigger_id>')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=8021,debug=True)
