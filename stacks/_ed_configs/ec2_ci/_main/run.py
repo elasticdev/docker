@@ -7,7 +7,6 @@ class Main(newSchedStack):
         self.parse.add_required(key="repo_branch",default="dev")
         self.parse.add_required(key="repo_key_group")
         self.parse.add_required(key="repo_url")
-        #self.parse.add_required(key="repo_key_loc")
 
         self.parse.add_required(key="aws_default_region",default="us-east-1")
         self.parse.add_required(key="dockerfile",default="null")
@@ -19,7 +18,8 @@ class Main(newSchedStack):
         # dockerfile_test
         self.parse.add_optional(key="dockerfile_test",default="null")
 
-        # substacks
+        # substacks can be referenced as fqn with <username>:::<repo>::<stack_name>
+        # or <username>:::<stack_name> since stacks are first class citizens
         self.stack.add_substack("elasticdev:::ed_core::run_commit_info")
         self.stack.add_substack("elasticdev:::docker::ec2_standby_ci")
         self.stack.add_substack("elasticdev:::docker::docker_build")
@@ -62,7 +62,6 @@ class Main(newSchedStack):
         default_values["repo_branch"] = self.repo_branch
         default_values["repo_url"] = self.repo_url
         default_values["repo_key_group"] = self.repo_key_group
-        #default_values["repo_key_loc"] = self.repo_key_loc
         if hasattr(self,"commit_info"): default_values["commit_info"] = self.commit_info
     
         # revisit 34098732086501259
@@ -84,9 +83,11 @@ class Main(newSchedStack):
 
     def run_record_commit(self):
 
+        # init is set by the saas automatically 
+        # when run for the first time
+        self.parse.add_optional(key="init",default="null")
         self.parse.add_optional(key="commit_info",default="null")
         self.parse.add_optional(key="commit_hash",default="null")
-        self.parse.add_optional(key="init",default="null")
         self.init_variables()
 
         if not self.commit_info and not self.init:
@@ -135,7 +136,6 @@ class Main(newSchedStack):
         default_values["branch"] = self.repo_branch
         default_values["repo_branch"] = self.repo_branch
         default_values["repo_url"] = self.repo_url
-        #default_values["repo_key_loc"] = self.repo_key_loc
         default_values["commit_hash"] = self.commit_hash
         default_values["docker_repo"] = self.docker_repo
         default_values["aws_default_region"] = self.aws_default_region
