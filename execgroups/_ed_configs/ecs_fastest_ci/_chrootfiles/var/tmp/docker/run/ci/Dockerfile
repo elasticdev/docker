@@ -1,1 +1,1 @@
-FROM gear2000/fastest_ci
+FROM elasticdev/fastest_ci
