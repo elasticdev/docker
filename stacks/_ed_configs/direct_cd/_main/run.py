@@ -36,7 +36,6 @@ def run(stackargs):
     stack.parse.add_optional(key="init",default="null")
 
     #stack.add_substack("elasticdev:::docker::ec2_fast_direct_ci")
-    #stack.init_substacks()
     stack.add_substack("elasticdev:::ed_core::run_commit_info")
     stack.add_substack('elasticdev:::add_groups2host')
     stack.add_substack('elasticdev:::ecr_repo')
