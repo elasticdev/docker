@@ -8,7 +8,7 @@ def run(stackargs):
     stack.parse.add_required(key="hostname",default="null")
     stack.parse.add_required(key="aws_default_region",default="null")
     stack.parse.add_required(key="region",default="null")
-    stack.parse.add_required(key="key",default="first_ssh_key")
+    stack.parse.add_required(key="key",default="ed_ssh_key")
 
     stack.parse.add_optional(key="sg_label",default="null")
     stack.parse.add_optional(key="sg_web_label",default="null")
