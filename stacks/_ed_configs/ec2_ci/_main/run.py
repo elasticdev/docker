@@ -232,9 +232,3 @@ class Main(newSchedStack):
         self.stack.add_sched(sched)
 
         return self.stack.schedules
-
-
-
-
-
-
