@@ -37,7 +37,6 @@ def run(stackargs):
 
     #stack.add_substack("elasticdev:::docker::ec2_fast_direct_ci")
     stack.add_substack("elasticdev:::ed_core::run_commit_info")
-    stack.add_substack('elasticdev:::add_groups2host')
     stack.add_substack('elasticdev:::ecr_repo')
 
     # Add hostgroups
@@ -191,13 +190,7 @@ def run(stackargs):
                                              stack.build_groups)
 
     # Execute orders on docker_host
-    human_description = 'Execute orders/tasks on hostname = "{}"'.format(stack.docker_host)
-    default_values = {"groups":groups}
-    default_values["hostname"] = stack.docker_host
-    inputargs = {"default_values":default_values}
-    inputargs["automation_phase"] = "continuous_delivery"
-    inputargs["human_description"] = human_description
-    stack.add_groups2host.insert(display=True,**inputargs)
+    stack.add_groups_to_host(groups=groups,hostname=stack.docker_host)
 
     values = {"schedule_id":stack.schedule_id}
     values["post_url"] = stack.post_url

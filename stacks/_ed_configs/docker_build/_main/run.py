@@ -23,9 +23,6 @@ def run(stackargs):
     # The docker host needs to be provided and ready to be used by this stack
     stack.parse.add_required(key="docker_host",default="null")
 
-    # Add substacks
-    stack.add_substack('elasticdev:::add_groups2host')
-
     # init the variables before hostgroups
     stack.init_variables()
     stack.init_substacks()
@@ -64,13 +61,9 @@ def run(stackargs):
     groups = 'local:::private::{} {}'.format(stack.repo_key_group,stack.build_groups)
 
     # Execute orders on docker_host
-    human_description = 'Execute orders/tasks on hostname = "{}"'.format(stack.docker_host)
-    default_values = {"groups":groups}
-    default_values["hostname"] = stack.docker_host
-    inputargs = {"default_values":default_values}
-    inputargs["automation_phase"] = "continuous_delivery"
-    inputargs["human_description"] = human_description
-    stack.add_groups2host.insert(display=True,**inputargs)
+    stack.add_groups_to_host(groups=groups,hostname=stack.docker_host)
+
+    # Wait until things finish?
     stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
 
     return stack.get_results()

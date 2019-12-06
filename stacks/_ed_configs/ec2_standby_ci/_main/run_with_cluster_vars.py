@@ -28,7 +28,6 @@ def run(stackargs):
 
     # Add substacks
     stack.add_substack('elasticdev:::run_commit_info')
-    stack.add_substack('elasticdev:::add_groups2host')
 
     # init the stack namespace
     stack.init_variables()
@@ -122,13 +121,7 @@ def run(stackargs):
 
     # Execute orders on docker_host
     #stack.add_group_orders(groups,hostname=stack.docker_host,unassign=True)
-    human_description = 'Execute orders/tasks on hostname = "{}"'.format(stack.docker_host)
-    default_values = {"groups":groups}
-    default_values["hostname"] = stack.docker_host
-    inputargs = {"default_values":default_values}
-    inputargs["automation_phase"] = "continuous_delivery"
-    inputargs["human_description"] = human_description
-    stack.add_groups2host.insert(display=True,**inputargs)
+    stack.add_groups_to_host(groups=groups,hostname=stack.docker_host)
 
     # Wait to complete on host
     stack.wait_hosts_tag(hostname=stack.docker_host)
