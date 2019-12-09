@@ -35,6 +35,10 @@ def run(stackargs):
     stack.parse.add_optional(key="commit_hash",default="null")
     stack.parse.add_optional(key="init",default="null")
 
+    # Add shelloutconfigs
+    stack.add_shelloutconfig('elasticdev:::aws::ecr_login')
+
+    # Add substacks
     #stack.add_substack("elasticdev:::docker::ec2_fast_direct_ci")
     stack.add_substack("elasticdev:::ed_core::run_commit_info")
     stack.add_substack('elasticdev:::ecr_repo')
@@ -42,9 +46,11 @@ def run(stackargs):
     # Add hostgroups
     stack.add_hostgroups("elasticdev:::docker::gitops_compose_deploy","build_groups")
 
+    # Initialize
     stack.init_variables()
     stack.init_substacks()
     stack.init_hostgroups()
+    stack.init_shelloutconfigs()
 
     # Set docker host accordingly
     if not stack.docker_host:
@@ -176,14 +182,14 @@ def run(stackargs):
     # It runs the shellout and places
     # the output in the environment variable "ECR_LOGIN"
     # that will be stored in EnvVars in the pipeline run
-    stack.execute_shellout(shelloutconfig="elasticdev:::aws::ecr_login",
-                           human_description="Getting ECR_LOGIN for pulling image",
-                           insert_env_vars=json.dumps(["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]),
-                           env_vars=json.dumps({"METHOD":"get","AWS_DEFAULT_REGION":stack.aws_default_region}),
-                           output_to_json=None,
-                           insert_to_run_var="ECR_LOGIN",
-                           run_key="EnvVars",
-                           display=True)
+    inputargs = { "human_description":"Getting ECR_LOGIN for pulling image" }
+    inputargs["insert_env_vars"] = json.dumps(["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"])
+    inputargs["env_vars"] = json.dumps({"METHOD":"get","AWS_DEFAULT_REGION":stack.aws_default_region})
+    inputargs["output_to_json"] = None
+    inputargs["insert_to_run_var"] = "ECR_LOGIN"
+    inputargs["run_key"] = "EnvVars"
+    inputargs["display"] = True
+    stack.ecr_login.run(**inputargs)
 
     # Add repo key group to list of groups
     groups = 'local:::private::{} {}'.format(stack.repo_key_group,

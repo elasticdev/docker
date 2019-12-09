@@ -27,6 +27,9 @@ def run(stackargs):
 
     stack.parse.add_optional(key="config_env",default="private")
 
+    # Add shelloutconfigs
+    stack.add_shelloutconfig('elasticdev:::aws::ecr_login')
+
     # Add hostgroups
     stack.add_hostgroups("elasticdev:::docker::ecs_create_push_image","build_groups")
 
@@ -34,10 +37,11 @@ def run(stackargs):
     stack.add_substack('elasticdev:::run_commit_info')
     stack.add_substack('elasticdev:::ecr_repo')
 
-    # init the stack namespace
+    # Initialize
     stack.init_variables()
     stack.init_substacks()
     stack.init_hostgroups()
+    stack.init_shelloutconfigs()
 
     # Set docker host accordingly
     if not stack.docker_host:
@@ -96,14 +100,14 @@ def run(stackargs):
     # It runs the shellout and places
     # the output in the environment variable "ECR_LOGIN"
     # that will be stored in EnvVars in the pipeline run
-    stack.execute_shellout(shelloutconfig="elasticdev:::aws::ecr_login",
-                           human_description="Getting ECR_LOGIN for pushing image",
-                           insert_env_vars=json.dumps(["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]),
-                           env_vars=json.dumps({"METHOD":"get","AWS_DEFAULT_REGION":stack.aws_default_region}),
-                           output_to_json=None,
-                           insert_to_run_var="ECR_LOGIN",
-                           run_key="EnvVars",
-                           display=True)
+    inputargs = {"output_to_json":None}
+    inputargs["human_description"] = "Getting ECR_LOGIN for pushing image"
+    inputargs["insert_env_vars"] = json.dumps(["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"])
+    inputargs["env_vars"] = json.dumps({"METHOD":"get","AWS_DEFAULT_REGION":stack.aws_default_region})
+    inputargs["insert_to_run_var"] = "ECR_LOGIN"
+    inputargs["run_key"] = "EnvVars"
+    inputargs["display"] = True
+    stack.ecr_login.run(**inputargs)
 
     # Disable parallelism
     stack.unset_parallel()
