@@ -8,7 +8,7 @@ def run(stackargs):
     stack.parse.add_required(key="hostname",default="null")
     stack.parse.add_required(key="aws_default_region",default="null")
     stack.parse.add_required(key="region",default="null")
-    stack.parse.add_required(key="key",default="ed_ssh_key")
+    stack.parse.add_required(key="keyname",default="ed_ssh_key")
 
     stack.parse.add_optional(key="sg_label",default="null")
     stack.parse.add_optional(key="sg_web_label",default="null")
@@ -43,7 +43,7 @@ def run(stackargs):
     default_values = {"size":"t2.medium"}
     default_values["disksize"] = 100
     default_values["hostname"] = stack.hostname
-    default_values["key"] = stack.key
+    default_values["keyname"] = stack.keyname
     default_values["image_ref"] = "elasticdev:::public::ubuntu.{}-docker".format(stack.os_version)
     default_values["ip_key"] = "private_ip"
     default_values["tags"] = "docker_host docker container single_host {} {} {}".format(stack.hostname,stack.os_version,"dev")

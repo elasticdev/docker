@@ -45,7 +45,6 @@ def run_cmd(cmd,exit_error=False):
 
 def run(**kwargs):
 
-    #docker run --env-file .env -it --rm -v /var/tmp/share/test456:/var/tmp/share elasticdev/terraform-run-env
     docker_image = os.environ.get("DOCKER_IMAGE","elasticdev/terraform-run-env")
     docker_env_file = os.environ.get("DOCKER_ENV_FILE",".env")
     docker_env_fields = os.environ.get("DOCKER_ENV_FIELDS")
