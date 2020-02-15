@@ -63,7 +63,7 @@ def run(stackargs):
     # Execute orders on docker_host
     stack.add_groups_to_host(groups=groups,hostname=stack.docker_host)
 
-    # Wait until things finish?
-    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
+    # wait for queue orders below to complete
+    stack.wait_all()
 
     return stack.get_results()

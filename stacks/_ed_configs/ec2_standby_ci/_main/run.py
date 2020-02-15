@@ -112,7 +112,8 @@ def run(stackargs):
     # Disable parallelism
     stack.unset_parallel()
 
-    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
+    # wait for queue orders below to complete
+    stack.wait_all()
 
     # Check resource
     resource_info = stack.get_resource(name=stack.docker_host,

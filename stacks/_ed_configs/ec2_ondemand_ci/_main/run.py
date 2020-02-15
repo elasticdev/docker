@@ -125,8 +125,8 @@ def run(stackargs):
 
     stack.add_cluster_envs(**input_args)
 
-    # Wait to complete on host
-    stack.wait_all_instance(**{ "queue_host":"instance","max_wt":"self"})
+    # wait for queue orders below to complete
+    stack.wait_all()
 
     docker_repo = stack.check_resource(name=stack.docker_repo,
                                        resource_type="ecr_repo",
