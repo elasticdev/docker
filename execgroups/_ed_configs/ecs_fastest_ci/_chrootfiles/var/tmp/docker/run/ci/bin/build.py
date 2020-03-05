@@ -411,11 +411,15 @@ class LocalDockerCI(object):
 
             data = self._close_pipeline(status,data,orders)
 
+            api_endpoint = "https://{}/{}".format(self.queue_host,"api/v1.0/run")
             inputargs = {"verify":False}
             inputargs["headers"] = {'content-type': 'application/json'}
             inputargs["headers"]["Token"] = self.token
-            inputargs["api_endpoint"] = "https://{}/{}".format(self.queue_host,"api/v1.0/run")
+            inputargs["api_endpoint"] = api_endpoint
             inputargs["data"] = json.dumps(data)
+
+            print "sending results \n{} to \n{}".format(data,api_endpoint)
+
             execute_http_post(**inputargs)
             sleep(1)
 
