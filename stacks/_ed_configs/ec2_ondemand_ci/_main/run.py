@@ -189,6 +189,9 @@ def run(stackargs):
     repo_branch = stack.commit_info.get("branch")
     if repo_branch: image_metadata["repo_branch"] = repo_branch
 
+    if "bitbucket.org" in stack.repo_url: image_metadata["repo_provider"] = "bitbucket"
+    if "github.com" in stack.repo_url: image_metadata["repo_provider"] = "github"
+
     # Parse commit_info
     default_values = {"image_metadata":image_metadata}
     default_values["itype"] = "docker"
