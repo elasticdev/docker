@@ -16,7 +16,7 @@
 
 **Optional**
 
-| *argument*           | *description*                            | *var type* |  *default*      |
+| argument           | description                            | var type |  default      |
 | ------------- | -------------------------------------- | -------- | ------------ |
 | triggered_branches | branches to trigger builds from        | string   | master       |
 | repo_branch        | branch to build from (array)           | array    | master       |
