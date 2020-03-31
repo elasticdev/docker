@@ -189,12 +189,11 @@ def run(stackargs):
     repo_branch = stack.commit_info.get("branch")
     if repo_branch: image_metadata["repo_branch"] = repo_branch
 
-    if "bitbucket.org" in stack.repo_url: 
-        image_metadata["repo_provider"] = "bitbucket"
-    elif "github.com" in stack.repo_url: 
-        image_metadata["repo_provider"] = "github"
-    else:
-        image_metadata["repo_provider"] = None
+    try:
+        repo_provider = stack.repo_url.split("//")[1].split(".")[0]
+    except:
+        repo_provider = None
+        stack.logger.warn("Could not determine the repo_provider")
 
     # Parse commit_info
     default_values = {"image_metadata":image_metadata}
@@ -204,7 +203,14 @@ def run(stackargs):
     default_values["config_env"] = stack.config_env
     default_values["commit_hash"] = stack.commit_hash
     default_values["cluster"] = stack.cluster
+
     if repo_branch: default_values["branch"] = repo_branch
+
+    if repo_provider: 
+        default_values["repo_provider"] = repo_provider
+        default_values["image_metadata"]["repo_provider"] = repo_provider
+    else:
+        default_values["image_metadata"]["repo_provider"] = "Testingyoyo"
 
     keys2pass = ["schedule_id", "job_id", "run_id", "job_instance_id"]
     stack.add_dict2dict(keys2pass,default_values,stackargs)
