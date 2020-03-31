@@ -82,6 +82,12 @@ def run(stackargs):
     pipeline_env_var["image_tag"] = stack.tag
     stack.publish(pipeline_env_var)
 
+    try:
+        repo_provider = stack.repo_url.split("//")[1].split(".")[0]
+    except:
+        repo_provider = None
+        stack.logger.warn("Could not determine the repo_provider")
+
     # Add additional views for pipeline env var
     # that isn't published
     # We add EnvVars for the Run only
@@ -93,6 +99,7 @@ def run(stackargs):
     pipeline_env_var["TARBALL_DIR"] = stack.tarball_dir
     pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
     pipeline_env_var["REPOSITORY_URI"] = docker_repo["repository_uri"]
+    if repo_provider: pipeline_env_var["REPO_PROVIDER"] = repo_provider
     if stack.docker_env_file: pipeline_env_var["DOCKER_ENV_FILE"] = stack.docker_env_file
     stack.add_host_env_vars_to_run(pipeline_env_var)
 
@@ -165,6 +172,12 @@ def run(stackargs):
     ikwargs["cluster"] = stack.cluster
     ikwargs["provider"] = "aws"
     ikwargs["image"] = "{}:{}".format(docker_repo["repository_uri"],stack.tag[0:6])
+
+    if repo_provider: 
+        ikwargs["repo_provider"] = repo_provider
+        ikwargs["image_metadata"]["repo_provider"] = repo_provider
+    else:
+        ikwargs["image_metadata"]["repo_provider"] = "Testingyoyo"
 
     # We make the name of the image the same as the commit_hash
     ikwargs["name"] = stack.commit_hash

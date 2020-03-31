@@ -68,10 +68,17 @@ def run(stackargs):
     # Set parallel
     stack.set_parallel()
 
+    try:
+        repo_provider = stack.repo_url.split("//")[1].split(".")[0]
+    except:
+        repo_provider = None
+        stack.logger.warn("Could not determine the repo_provider")
+
     # We add EnvVars for the Run only
     pipeline_env_var = {"COMMIT_HASH":stack.commit_hash}
     pipeline_env_var["REPO_BRANCH"] = stack.repo_branch
     pipeline_env_var["REPO_URL"] = stack.repo_url
+    if repo_provider: pipeline_env_var["REPO_PROVIDER"] = repo_provider
     stack.add_host_env_vars_to_run(pipeline_env_var)
 
     # Publish commit_info
@@ -189,12 +196,6 @@ def run(stackargs):
     repo_branch = stack.commit_info.get("branch")
     if repo_branch: image_metadata["repo_branch"] = repo_branch
 
-    try:
-        repo_provider = stack.repo_url.split("//")[1].split(".")[0]
-    except:
-        repo_provider = None
-        stack.logger.warn("Could not determine the repo_provider")
-
     # Parse commit_info
     default_values = {"image_metadata":image_metadata}
     default_values["itype"] = "docker"
@@ -211,6 +212,9 @@ def run(stackargs):
         default_values["image_metadata"]["repo_provider"] = repo_provider
     else:
         default_values["image_metadata"]["repo_provider"] = "Testingyoyo"
+
+    default_values["repo_provider"] = "Testingyoyo"
+    default_values["image_metadata"]["repo_provider"] = "Testingyoyo"
 
     keys2pass = ["schedule_id", "job_id", "run_id", "job_instance_id"]
     stack.add_dict2dict(keys2pass,default_values,stackargs)
