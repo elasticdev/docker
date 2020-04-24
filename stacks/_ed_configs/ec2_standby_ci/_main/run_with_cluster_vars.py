@@ -70,7 +70,7 @@ def run(stackargs):
 
     # Add additional views for pipeline env var
     # that isn't published
-    docker_env_file = "/var/tmp/docker/build/.env".format(stack.dockerfile)
+    docker_env_file = "/var/tmp/docker/build/.env"
     pipeline_env_var["DOCKER_FILE"] = stack.dockerfile
     pipeline_env_var["DOCKER_ENV_FILE"] = docker_env_file
     stack.add_host_env_vars_to_run(pipeline_env_var)
@@ -100,13 +100,6 @@ def run(stackargs):
 
     # wait for queue orders below to complete
     stack.wait_all()
-
-    #docker_host_info = stack.check_resource(name=stack.docker_host,
-    #                                        resource_type="server",
-    #                                        must_exists=True)[0]
-    #input_args["contents"]["DOCKERHOST_PUBLIC_IP"] = docker_host_info["public_ip"]
-    #input_args["contents"]["DOCKERHOST_PRIVATE_IP"] = docker_host_info["private_ip"]
-    #input_args["track"] = stack.track
 
     # Disable parallelism
     stack.unset_parallel()

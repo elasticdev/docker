@@ -1,0 +1,10 @@
+desc: Creates a docker registry on s3 backstore
+release: 0.0.1
+categories: 
+   - docker
+   - imaginging
+tags:
+   - docker
+   - registry
+   - s3
+   - ec2

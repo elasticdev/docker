@@ -1,0 +1,9 @@
+version: '3'
+services:
+  setup:
+    build: ./
+    env_file:
+      - .env
+    volumes:
+      - ./auth:/auth
+    command: /bin/setpasswd.sh

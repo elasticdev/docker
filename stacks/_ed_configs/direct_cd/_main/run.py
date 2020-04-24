@@ -20,7 +20,6 @@ def run(stackargs):
     stack.parse.add_required(key="tarball_dir",default="/usr/src/tarballs")
     stack.parse.add_required(key="aws_default_region",default="us-east-1")
     stack.parse.add_required(key="tag",default="null")
-    stack.parse.add_required(key="aws_default_region",default="us-east-1")
     stack.parse.add_required(key="jiffy_saas_env",default="app")
     stack.parse.add_required(key="webhook_api_endpoint",default="null")
 
