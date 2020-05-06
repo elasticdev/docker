@@ -17,7 +17,7 @@ def run(stackargs):
     stack.parse.add_optional(key="size")
 
     # Add substacks
-    stack.add_substack('elasticdev:::ed_core::getlock_host')
+    #stack.add_substack('elasticdev:::ed_core::getlock_host')
     stack.add_substack('elasticdev:::ubuntu::ec2_ubuntu')
 
     # init the stack namespace
