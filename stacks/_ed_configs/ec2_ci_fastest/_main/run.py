@@ -22,7 +22,7 @@ def run(stackargs):
     stack.parse.add_required(key="aws_default_region",default="us-east-1")
     stack.parse.add_required(key="tag",default="null")
     stack.parse.add_required(key="aws_default_region",default="us-east-1")
-    stack.parse.add_required(key="jiffy_saas_env",default="app")
+    stack.parse.add_required(key="saas_env",default="app")
     stack.parse.add_required(key="webhook_api_endpoint",default="null")
 
     # Call endpoint
@@ -68,7 +68,7 @@ def run(stackargs):
         else:
             stack.ehandle.NeedMoreInfo(message="Could not determine the repo provider")
 
-        stack.set_variable("webhook_api_endpoint","https://api-{}.elasticdev.io/web_api/v1.0/{}/webhook".format(stack.jiffy_saas_env,provider))
+        stack.set_variable("webhook_api_endpoint","https://api-{}.elasticdev.io/web_api/v1.0/{}/webhook".format(stack.saas_env,provider))
 
     docker_host_info = stack.check_resource(name=stack.docker_host,
                                             resource_type="server",
