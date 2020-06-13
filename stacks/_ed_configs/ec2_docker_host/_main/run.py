@@ -70,3 +70,4 @@ def run(stackargs):
     #stack.add_metadata_to_run({"docker_host":stack.hostname},mkey="infrastructure")
 
     return stack.get_results(stackargs.get("destroy_instance"))
+
