@@ -1,8 +1,8 @@
 #!/bin/bash
 
 apt-get update -y || exit 
-service lxcfs stop
-apt-get remove -y -q lxc-common lxcfs lxd lxd-client  
+#service lxcfs stop
+#apt-get remove -y -q lxc-common lxcfs lxd lxd-client  
 apt-get update -y 
 
 apt-get install \
