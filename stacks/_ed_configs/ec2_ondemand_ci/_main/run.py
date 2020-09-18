@@ -210,11 +210,6 @@ def run(stackargs):
     if repo_provider: 
         default_values["repo_provider"] = repo_provider
         default_values["image_metadata"]["repo_provider"] = repo_provider
-    else:
-        default_values["image_metadata"]["repo_provider"] = "Testingyoyo"
-
-    default_values["repo_provider"] = "Testingyoyo"
-    default_values["image_metadata"]["repo_provider"] = "Testingyoyo"
 
     keys2pass = ["schedule_id", "job_id", "run_id", "job_instance_id"]
     stack.add_dict2dict(keys2pass,default_values,stackargs)

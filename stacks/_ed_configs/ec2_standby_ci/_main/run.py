@@ -176,8 +176,6 @@ def run(stackargs):
     if repo_provider: 
         ikwargs["repo_provider"] = repo_provider
         ikwargs["image_metadata"]["repo_provider"] = repo_provider
-    else:
-        ikwargs["image_metadata"]["repo_provider"] = "Testingyoyo"
 
     # We make the name of the image the same as the commit_hash
     ikwargs["name"] = stack.commit_hash
