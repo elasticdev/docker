@@ -127,8 +127,8 @@ def run(stackargs):
                                        resource_type="server",
                                        must_exists=True)[0]
 
-    if resource_info.get("status") != "running" or resource_info.get("status") == "stopped":
-        # Start the server when doing a build
+    # Start the server when doing a build
+    if resource_info.get("status") != "running" or resource_info.get("status") == "stopped" or not resource_info.get("public_ip"):
         stack.modify_resource(resource_type="server",
                               human_description='Starting resource server hostname "{}"'.format(stack.docker_host),
                               provider="ec2",
