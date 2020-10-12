@@ -176,6 +176,7 @@ class Main(newSchedStack):
         sched.failure.keep_resources = True
         sched.conditions.retries = 1
         sched.conditions.frequency = "wait_last_run 20"
+        sched.conditions.noncurrent = [ "unit_test", "register_docker", "stop_server" ]
         sched.automation_phase = "continuous_delivery"
         sched.human_description = "Insert commit info into run"
         sched.on_success = [ "unit_test" ]
