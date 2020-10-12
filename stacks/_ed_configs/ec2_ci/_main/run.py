@@ -183,8 +183,8 @@ class Main(newSchedStack):
 
         sched = self.stack.new_schedule()
         sched.job = "unit_test"
-        sched.archive.timeout = 2700
-        sched.archive.timewait = 120
+        sched.archive.timeout = 1800
+        sched.archive.timewait = 180
         sched.archive.cleanup.instance = "clear"
         sched.failure.keep_resources = True
         sched.conditions.frequency = "wait_last_run 60"
@@ -207,8 +207,8 @@ class Main(newSchedStack):
         
         sched = self.stack.new_sched()
         sched.job = "register_docker"
-        sched.archive.timeout = 2700
-        sched.archive.timewait = 120
+        sched.archive.timeout = 1800
+        sched.archive.timewait = 180
         sched.archive.cleanup.instance = "clear"
         sched.failure.keep_resources = True
         sched.conditions.noncurrent = [ "unit_test", "stop_server" ]
