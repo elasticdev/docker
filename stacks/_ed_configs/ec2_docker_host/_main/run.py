@@ -10,6 +10,7 @@ def run(stackargs):
     stack.parse.add_required(key="region",default="null")
     stack.parse.add_required(key="keyname",default="ed_ssh_key")
 
+    stack.parse.add_optional(key="register_to_ed",default="True")
     stack.parse.add_optional(key="sg_label",default="null")
     stack.parse.add_optional(key="sg_web_label",default="null")
     stack.parse.add_optional(key="sg",default="null")
@@ -47,6 +48,7 @@ def run(stackargs):
     default_values["image_ref"] = "elasticdev:::public::ubuntu.{}-docker".format(stack.os_version)
     default_values["ip_key"] = "private_ip"
     default_values["tags"] = "docker_host docker container single_host {} {} {}".format(stack.hostname,stack.os_version,"dev")
+    if stack.register_to_ed: default_values["register_to_ed"] = True
     if stack.sg: default_values["sg"] = stack.sg
     if stack.sg_label: default_values["sg_label"] = stack.sg_label
     if stack.aws_default_region: default_values["aws_default_region"] = stack.aws_default_region
