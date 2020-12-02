@@ -33,7 +33,8 @@ def run(stackargs):
     # publish values to be seen and used
     stack.publish(publish_vars)
 
-    pipeline_env_var = stack.get_resource(name=stack.aws_credentials,
+    pipeline_env_var = stack.get_resource(decrypt=True,
+                                          name=stack.aws_credentials,
                                           resource_type="credentials",
                                           ref_schedule_id=stack.schedule_id,
                                           must_exists=True)[0]
