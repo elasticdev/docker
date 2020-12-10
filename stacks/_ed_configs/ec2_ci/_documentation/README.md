@@ -1,6 +1,7 @@
 **Description**
 
-  - This stack preforms continuous integration through a dockerhost on AWS - ec2.  It responds to webhooks and builds code accordingly.
+  - This stack preforms continuous integration through a dockerhost on AWS - ec2.  
+  - It responds to webhooks and builds code accordingly.
 
 **Infrastructure**
 
